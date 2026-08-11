@@ -54,9 +54,9 @@
   --glass-bg-hover: rgba(15, 23, 42, 0.06);
 }
 
+/* Support system dark mode unless explicitly set to light */
 @media (prefers-color-scheme: dark) {
-  :root {
-    /* Dark Mode Variables */
+  :root:not([data-theme="light"]) {
     --bg-page: #020617; /* slate-950 */
     --bg-card: #0f172a; /* slate-900 */
     --bg-card-hover: #1e293b; /* slate-800 */
@@ -69,6 +69,21 @@
     --glass-bg: rgba(255, 255, 255, 0.03);
     --glass-bg-hover: rgba(255, 255, 255, 0.06);
   }
+}
+
+/* Force dark mode via manual toggle */
+:root[data-theme="dark"] {
+  --bg-page: #020617; /* slate-950 */
+  --bg-card: #0f172a; /* slate-900 */
+  --bg-card-hover: #1e293b; /* slate-800 */
+  --border-color: #1e293b; /* slate-800 */
+  --text-primary: #f8fafc; /* slate-50 */
+  --text-secondary: #cbd5e1; /* slate-300 */
+  --text-muted: #64748b; /* slate-500 */
+  --shadow-bento: 0 4px 20px rgba(0, 0, 0, 0.4);
+  
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-bg-hover: rgba(255, 255, 255, 0.06);
 }
 
 /* ========================================
