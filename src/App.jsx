@@ -9,65 +9,63 @@ import Budget from './pages/Budget'
 import Settings from './pages/Settings'
 import AdminDashboard from './pages/AdminDashboard'
 import { ToastProvider } from './context/ToastContext'
+import { NotificationProvider } from './context/NotificationContext'
 
-/**
- * App — Root component
- * Login is outside Layout (fullscreen)
- * All other routes are protected and wrapped in Layout
- */
 export default function App() {
   return (
     <BrowserRouter basename="/keuangan">
       <ToastProvider>
         <AuthProvider>
-          <Routes>
-          {/* Public route — Login (no layout) */}
-          <Route path="/login" element={<Login />} />
+          <NotificationProvider>
+            <Routes>
+              {/* Public route — Login (no layout) */}
+              <Route path="/login" element={<Login />} />
 
-          {/* Admin Route */}
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute adminOnly={true}>
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
-          />
+              {/* Admin Route */}
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute adminOnly={true}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
 
-          {/* Protected routes — with Layout (User only) */}
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Layout><Dashboard /></Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/transactions"
-            element={
-              <ProtectedRoute>
-                <Layout><Transactions /></Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/budget"
-            element={
-              <ProtectedRoute>
-                <Layout><Budget /></Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/settings"
-            element={
-              <ProtectedRoute>
-                <Layout><Settings /></Layout>
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
+              {/* Protected routes — with Layout (User only) */}
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <Layout><Dashboard /></Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/transactions"
+                element={
+                  <ProtectedRoute>
+                    <Layout><Transactions /></Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/budget"
+                element={
+                  <ProtectedRoute>
+                    <Layout><Budget /></Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/settings"
+                element={
+                  <ProtectedRoute>
+                    <Layout><Settings /></Layout>
+                  </ProtectedRoute>
+                }
+              />
+            </Routes>
+          </NotificationProvider>
         </AuthProvider>
       </ToastProvider>
     </BrowserRouter>

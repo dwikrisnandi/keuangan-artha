@@ -13,6 +13,7 @@ import { formatRupiah, formatRupiahShort } from '../utils/formatCurrency'
 import BentoCard from '../components/ui/BentoCard'
 import Skeleton from '../components/ui/Skeleton'
 import TransactionModal from '../components/ui/TransactionModal'
+import { useNotificationEngine } from '../hooks/useNotificationEngine'
 
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
@@ -89,8 +90,20 @@ export default function Dashboard() {
     }
     const has7DaysData = last7DaysData.some(d => d.value > 0)
 
-    return { totalIncome, totalExpense, balance, expenseRatioData, last7DaysData, has7DaysData }
+    return { 
+      totalIncome, 
+      totalExpense, 
+      total_income: totalIncome, 
+      total_expense: totalExpense, 
+      balance, 
+      expenseRatioData, 
+      last7DaysData, 
+      has7DaysData 
+    }
   }, [transactions])
+
+  // Fire Smart Notification Engine!
+  useNotificationEngine(metrics)
 
   const handleAddTransaction = async (txData) => {
     try {

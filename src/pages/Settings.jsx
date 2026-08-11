@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { LogOut, KeyRound, Shield, Bell, Moon, Smartphone, Sun } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { useNotifications } from '../context/NotificationContext'
 import BentoCard from '../components/ui/BentoCard'
 
 export default function Settings() {
   const { user, logout } = useAuth()
+  const { isNotificationsEnabled, toggleNotifications } = useNotifications()
   const [isDark, setIsDark] = useState(false)
 
   // Initialize theme from localStorage or system preference
@@ -112,7 +114,7 @@ export default function Settings() {
               </button>
             </div>
 
-            {/* Notification Toggle (Mock) */}
+            {/* Notification Toggle */}
             <div className="flex items-center justify-between py-4">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-xl bg-glass flex items-center justify-center">
@@ -120,11 +122,15 @@ export default function Settings() {
                 </div>
                 <div>
                   <h4 className="text-text-primary font-medium text-sm">Notifikasi Pengingat</h4>
-                  <p className="text-text-muted text-xs">Ingatkan untuk mencatat pengeluaran harian</p>
+                  <p className="text-text-muted text-xs">Peringatan anggaran & aktivitas</p>
                 </div>
               </div>
-              <button className="w-12 h-6 rounded-full bg-glass-border relative cursor-not-allowed opacity-50">
-                <div className="absolute left-1 top-1 w-4 h-4 rounded-full bg-text-muted" />
+              <button 
+                onClick={toggleNotifications}
+                className={`w-12 h-6 rounded-full relative cursor-pointer transition-colors duration-300 ${isNotificationsEnabled ? 'bg-emerald-primary' : 'bg-glass-border'}`}
+                aria-label="Toggle Notifications"
+              >
+                <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-all duration-300 ${isNotificationsEnabled ? 'left-7' : 'left-1'}`} />
               </button>
             </div>
 
