@@ -138,9 +138,9 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 auto-rows-[minmax(160px,auto)]">
         
         {/* Main Balance Card (Hero) */}
-        <BentoCard colSpan={2} className="bg-gradient-to-br from-[#111] to-[#000] !border-glass-border-hover relative overflow-hidden group">
+        <BentoCard colSpan={2} className="bg-gradient-to-br from-bg-secondary to-bg-tertiary !border-glass-border-hover relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-            <Wallet className="w-32 h-32 text-white" />
+            <Wallet className="w-32 h-32 text-text-primary" />
           </div>
           <div className="relative z-10 flex flex-col h-full justify-between">
             <div>

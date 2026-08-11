@@ -9,7 +9,6 @@ import Budget from './pages/Budget'
 import Settings from './pages/Settings'
 import AdminDashboard from './pages/AdminDashboard'
 import { ToastProvider } from './context/ToastContext'
-import './App.css'
 
 /**
  * App — Root component

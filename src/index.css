@@ -1,132 +1,162 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
-/* ========================================
-   Design System — Hyper Minimalist (Linear/Vercel Style)
-   Pure black, thin borders, sharp corners, high contrast
-   ======================================== */
-
 @theme {
-  /* Minimalist Black Backgrounds */
-  --color-bg-primary: #000000;
-  --color-bg-secondary: #0A0A0A;
-  --color-bg-tertiary: #111111;
-
-  /* Subtle Borders & Glass */
-  --color-glass: rgba(255, 255, 255, 0.02);
-  --color-glass-hover: rgba(255, 255, 255, 0.05);
-  --color-glass-border: #222222;
-  --color-glass-border-hover: #333333;
-
-  /* Clean Accents */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  
+  /* Map legacy classes to our new Light/Dark CSS variables */
+  --color-bg-primary: var(--bg-page);
+  --color-bg-secondary: var(--bg-card);
+  --color-bg-tertiary: var(--bg-card-hover);
+  
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-inverse: var(--bg-page);
+  
+  --color-glass-border: var(--border-color);
+  --color-glass-border-hover: var(--text-muted);
+  
+  --color-glass: var(--glass-bg);
+  --color-glass-hover: var(--glass-bg-hover);
+  
   --color-emerald-primary: #10B981;
   --color-emerald-bg: rgba(16, 185, 129, 0.1);
-
   --color-rose-primary: #F43F5E;
   --color-rose-bg: rgba(244, 63, 94, 0.1);
-
   --color-blue-primary: #3B82F6;
   --color-amber-primary: #F59E0B;
-
-  /* High Contrast Typography */
-  --color-text-primary: #FFFFFF;
-  --color-text-secondary: #888888;
-  --color-text-muted: #666666;
-  --color-text-inverse: #000000;
-
-  /* Minimal Shadows */
-  --shadow-glass: 0 4px 24px rgba(0, 0, 0, 0.5);
-  --shadow-glass-sm: 0 2px 8px rgba(0, 0, 0, 0.8);
-
-  /* Sharp & Clean Borders */
-  --radius-card: 12px;
-  --radius-button: 8px;
-  --radius-badge: 6px;
-
-  /* Fast, Snappy Transitions */
-  --transition-fast: 150ms ease;
+  
+  --shadow-glass: var(--shadow-bento);
+  --shadow-glass-sm: var(--shadow-bento);
+  
+  /* Shared standard variables */
   --transition-base: 200ms ease;
-
-  /* Standard Clean Font */
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --radius-card: 16px;
+  --radius-bento: 24px;
 }
 
 /* ========================================
-   Base Reset
+   Base Theme Variables (Light/Dark via Tailwind)
    ======================================== */
+:root {
+  /* Default Light Mode Variables */
+  --bg-page: #f8fafc; /* slate-50 */
+  --bg-card: #ffffff;
+  --bg-card-hover: #f1f5f9; /* slate-100 */
+  --border-color: #e2e8f0; /* slate-200 */
+  --text-primary: #0f172a; /* slate-900 */
+  --text-secondary: #475569; /* slate-600 */
+  --text-muted: #94a3b8; /* slate-400 */
+  --shadow-bento: 0 4px 20px rgba(0, 0, 0, 0.05);
+  
+  --glass-bg: rgba(15, 23, 42, 0.03);
+  --glass-bg-hover: rgba(15, 23, 42, 0.06);
+}
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Dark Mode Variables */
+    --bg-page: #020617; /* slate-950 */
+    --bg-card: #0f172a; /* slate-900 */
+    --bg-card-hover: #1e293b; /* slate-800 */
+    --border-color: #1e293b; /* slate-800 */
+    --text-primary: #f8fafc; /* slate-50 */
+    --text-secondary: #cbd5e1; /* slate-300 */
+    --text-muted: #64748b; /* slate-500 */
+    --shadow-bento: 0 4px 20px rgba(0, 0, 0, 0.4);
+    
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-bg-hover: rgba(255, 255, 255, 0.06);
+  }
+}
+
+/* ========================================
+   Base Reset & Application Style
+   ======================================== */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-html {
+html, body {
   font-family: var(--font-sans);
+  background-color: var(--bg-page);
+  color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--color-bg-primary);
-  color: var(--color-text-primary);
   text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  transition: background-color var(--transition-base), color var(--transition-base);
 }
 
 body {
   min-height: 100dvh;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
-
-/* Scrollbar (Invisible unless hovering) */
-::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #333;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
 }
 
 /* ========================================
-   Utility Classes (Minimalist Components)
+   Utilities & Layouts
    ======================================== */
 
-.glass-card {
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-glass-border);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-glass-sm);
-  transition: border-color var(--transition-base);
+.app-shell {
+  display: flex;
+  min-height: 100dvh;
 }
 
-.glass-card:hover {
-  border-color: var(--color-glass-border-hover);
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  overflow-y: auto;
+  position: relative;
 }
 
-.glass-card-static {
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-glass-border);
-  border-radius: var(--radius-card);
+.page-container {
+  flex: 1;
+  padding: 24px 16px 120px; /* Large bottom padding to prevent FAB/nav overlap */
 }
 
-/* Typography Enhancements */
-.text-gradient {
-  background: linear-gradient(180deg, #FFFFFF 0%, #888888 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+@media (min-width: 768px) {
+  .page-container {
+    padding: 32px;
+  }
 }
 
-/* ========================================
-   Animations
-   ======================================== */
+.theme-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-bento);
+  transition: all var(--transition-base);
+}
 
+.theme-card:hover {
+  border-color: var(--text-muted);
+}
+
+.theme-input {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.theme-input:focus {
+  outline: none;
+  border-color: var(--text-primary);
+  ring: 1px;
+  ring-color: var(--text-primary);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Animations */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -137,6 +167,12 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
 .animate-fade-in {
   animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -145,34 +181,6 @@ body {
   animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Stagger children animation */
-.stagger-children > * {
-  opacity: 0;
-  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
-.stagger-children > *:nth-child(2) { animation-delay: 0.10s; }
-.stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
-.stagger-children > *:nth-child(4) { animation-delay: 0.20s; }
-.stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
-
-/* Shake animation — login error */
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-4px); }
-  75% { transform: translateX(4px); }
-}
-
 .animate-shake {
   animation: shake 0.3s ease-in-out;
-}
-
-/* Utilities */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
 }

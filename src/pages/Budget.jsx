@@ -92,7 +92,7 @@ export default function Budget() {
       ) : (
         <div className="space-y-6">
           {/* Summary Card */}
-          <BentoCard className="bg-gradient-to-br from-[#111] to-[#000] !border-glass-border-hover">
+          <BentoCard className="bg-gradient-to-br from-bg-secondary to-bg-tertiary !border-glass-border-hover">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div>
                 <p className="text-text-secondary text-sm font-medium mb-1">Total Pemasukan (Dasar Anggaran)</p>
