@@ -196,3 +196,15 @@ body {
 .stagger-children > *:nth-child(4) { animation-delay: 0.2s; }
 .stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
 .stagger-children > *:nth-child(6) { animation-delay: 0.3s; }
+
+/* Shake animation — login error */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
