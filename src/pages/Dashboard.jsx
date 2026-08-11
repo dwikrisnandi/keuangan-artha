@@ -139,13 +139,15 @@ export default function Dashboard() {
         
         {/* Main Balance Card (Hero) */}
         <BentoCard colSpan={2} className="bg-gradient-to-br from-bg-secondary to-bg-tertiary !border-glass-border-hover relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-            <Wallet className="w-32 h-32 text-text-primary" />
+          <div className="absolute top-4 right-4 p-3 rounded-full bg-bg-card border border-glass-border shadow-sm">
+            <Wallet className="w-6 h-6 text-emerald-primary" />
           </div>
-          <div className="relative z-10 flex flex-col h-full justify-between">
-            <div>
+          <div className="relative z-10 flex flex-col h-full justify-between pt-2">
+            <div className="w-full pr-12">
               <p className="text-text-secondary text-sm font-medium mb-1">Saldo Saat Ini</p>
-              <h3 className="text-text-primary text-4xl font-bold tracking-tight">{formatRupiah(metrics.balance)}</h3>
+              <h3 className="text-text-primary text-3xl sm:text-4xl font-bold tracking-tight truncate w-full" title={formatRupiah(metrics.balance)}>
+                {formatRupiah(metrics.balance)}
+              </h3>
             </div>
             <div className="flex items-center gap-4 mt-6">
               <div className="flex items-center gap-2">
