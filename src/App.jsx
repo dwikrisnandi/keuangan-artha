@@ -16,7 +16,7 @@ import './App.css'
  */
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/keuangan">
       <AuthProvider>
         <Routes>
           {/* Public route — Login (no layout) */}

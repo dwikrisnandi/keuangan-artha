@@ -1,0 +1,23 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /keuangan/
+
+  # 1. API endpoint bypass (jangan di-redirect ke dist)
+  RewriteCond %{REQUEST_URI} ^/keuangan/api [NC]
+  RewriteRule ^ - [L]
+
+  # 2. Redirect asset request ke folder dist/ (hasil build Vite)
+  # Jika file ada di dalam dist/, serve file tersebut
+  RewriteCond %{DOCUMENT_ROOT}/keuangan/dist/$1 -f
+  RewriteRule ^(.*)$ dist/$1 [L]
+
+  # 3. SPA Fallback (React Router)
+  # Jika yang direquest bukan file asli atau folder asli, kirim ke dist/index.html
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ dist/index.html [L]
+
+  # 4. Handle root /keuangan/ explicitly agar tidak membaca index.html dari src
+  RewriteRule ^$ dist/index.html [L]
+  RewriteRule ^index\.html$ dist/index.html [L]
+</IfModule>
