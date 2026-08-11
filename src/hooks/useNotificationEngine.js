@@ -23,15 +23,15 @@ export function useNotificationEngine(metrics) {
         addNotification({
           id: `budget_alert_critical_${new Date().getMonth()}`,
           type: 'warning',
-          title: 'Peringatan Anggaran Kritis',
-          message: 'Total pengeluaran Anda telah melewati 80% dari pendapatan bulan ini. Pertimbangkan untuk mengerem pengeluaran.'
+          title: 'Critical Budget Alert',
+          message: 'Your total expenses have exceeded 80% of this month\'s income. Consider reducing your expenses.'
         })
       } else if (expense > (income * 0.5)) {
         addNotification({
           id: `budget_alert_warning_${new Date().getMonth()}`,
           type: 'info',
-          title: 'Perhatian Anggaran',
-          message: 'Pengeluaran Anda telah melewati 50% dari pendapatan bulan ini.'
+          title: 'Budget Warning',
+          message: 'Your expenses have exceeded 50% of this month\'s income.'
         })
       }
     }
@@ -43,8 +43,8 @@ export function useNotificationEngine(metrics) {
       addNotification({
         id: `welcome_or_empty_${new Date().getMonth()}`,
         type: 'success',
-        title: 'Selamat Datang di Artha!',
-        message: 'Mulai catat pemasukan dan pengeluaran pertama Anda bulan ini untuk memantau kesehatan finansial.'
+        title: 'Welcome to Artha!',
+        message: 'Start recording your first income and expenses this month to track your financial health.'
       })
     }
 

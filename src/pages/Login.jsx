@@ -34,13 +34,13 @@ export default function Login() {
 
     // Client-side validation
     if (!trimmed) {
-      setError('Masukkan kode akses.')
+      setError('Enter access code.')
       triggerShake()
       return
     }
 
     if (!/^[A-Za-z0-9]{4,20}$/.test(trimmed)) {
-      setError('Kode akses harus alfanumerik, 4–20 karakter.')
+      setError('Access code must be alphanumeric, 4–20 characters.')
       triggerShake()
       return
     }
@@ -51,7 +51,7 @@ export default function Login() {
       await login(trimmed)
       navigate('/', { replace: true })
     } catch (err) {
-      setError(err.message || 'Gagal masuk. Coba lagi.')
+      setError(err.message || 'Login failed. Try again.')
       triggerShake()
     } finally {
       setLoading(false)
@@ -70,7 +70,7 @@ export default function Login() {
             Artha
           </h1>
           <p className="text-text-secondary text-sm">
-            Dasbor Keuangan Pribadi
+            Personal Finance Dashboard
           </p>
         </div>
 
@@ -83,7 +83,7 @@ export default function Login() {
                 htmlFor="access-code"
                 className="block text-text-secondary text-xs font-medium mb-2 uppercase tracking-wider"
               >
-                Kode Akses
+                Access Code
               </label>
               <input
                 id="access-code"
@@ -93,7 +93,7 @@ export default function Login() {
                   setCode(e.target.value.toUpperCase())
                   if (error) setError('')
                 }}
-                placeholder="Contoh: ARTHA2026"
+                placeholder="Example: ARTHA2026"
                 maxLength={20}
                 autoComplete="off"
                 autoFocus
@@ -119,11 +119,11 @@ export default function Login() {
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Memproses...
+                  Processing...
                 </>
               ) : (
                 <>
-                  Masuk
+                  Login
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
@@ -132,8 +132,8 @@ export default function Login() {
 
           {/* Helper text */}
           <p className="text-text-muted text-[11px] text-center mt-4 leading-relaxed">
-            Hanya kode yang valid yang dapat digunakan.<br />
-            Silakan minta kode akses ke Admin.
+            Only valid codes can be used.<br />
+            Please request an access code from the Admin.
           </p>
         </form>
       </div>
