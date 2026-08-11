@@ -9,20 +9,10 @@ export default function Settings() {
   const { isNotificationsEnabled, toggleNotifications } = useNotifications()
   const [isDark, setIsDark] = useState(false)
 
-  // Initialize theme from localStorage or system preference
+  // Initialize theme from documentElement (set by index.html script)
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme')
-    if (savedTheme === 'dark') {
-      setIsDark(true)
-      document.documentElement.setAttribute('data-theme', 'dark')
-    } else if (savedTheme === 'light') {
-      setIsDark(false)
-      document.documentElement.setAttribute('data-theme', 'light')
-    } else {
-      // System preference
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      setIsDark(prefersDark)
-    }
+    const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark'
+    setIsDark(isDarkMode)
   }, [])
 
   const toggleTheme = () => {
