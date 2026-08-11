@@ -1,12 +1,14 @@
 import { useState, useRef, useEffect } from 'react'
-import { Bell, Search, X, Check, CheckCircle2, AlertTriangle, Info } from 'lucide-react'
+import { Bell, Search, X, Check, CheckCircle2, AlertTriangle, Info, LogOut } from 'lucide-react'
 import { useNotifications } from '../../context/NotificationContext'
+import { useAuth } from '../../context/AuthContext'
 
 export default function Header() {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
   const popoverRef = useRef(null)
   
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications()
+  const { logout } = useAuth()
 
   // Close popover when clicking outside
   useEffect(() => {
@@ -53,6 +55,15 @@ export default function Header() {
           aria-label="Cari transaksi"
         >
           <Search className="w-4 h-4 text-text-secondary" />
+        </button>
+
+        {/* Logout button (Mobile/Desktop Quick Access) */}
+        <button
+          onClick={logout}
+          className="w-10 h-10 rounded-xl bg-glass flex items-center justify-center border border-glass-border hover:border-glass-border-hover transition-all duration-200 cursor-pointer text-text-secondary hover:text-rose-primary"
+          aria-label="Keluar"
+        >
+          <LogOut className="w-4 h-4" />
         </button>
 
         {/* Notification wrapper */}

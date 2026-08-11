@@ -5,7 +5,9 @@ import {
   PiggyBank,
   Settings,
   Wallet,
+  LogOut
 } from 'lucide-react'
+import { useAuth } from '../../context/AuthContext'
 
 const navItems = [
   { to: '/', label: 'Dasbor', icon: LayoutDashboard },
@@ -19,6 +21,8 @@ const navItems = [
  * Hidden on mobile, visible from md breakpoint
  */
 export default function Sidebar() {
+  const { logout } = useAuth()
+  
   return (
     <aside className="hidden md:flex flex-col w-[240px] lg:w-[260px] min-h-screen border-r border-glass-border bg-glass backdrop-blur-xl">
       {/* Logo */}
@@ -57,8 +61,15 @@ export default function Sidebar() {
       </nav>
 
       {/* Bottom section */}
-      <div className="px-4 py-4 border-t border-glass-border">
-        <div className="glass-card p-3 text-center">
+      <div className="px-4 py-4 border-t border-glass-border space-y-2">
+        <button
+          onClick={logout}
+          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-rose-primary hover:bg-rose-primary/10 transition-all duration-[var(--transition-base)] cursor-pointer"
+        >
+          <LogOut className="w-[18px] h-[18px]" />
+          Keluar
+        </button>
+        <div className="glass-card p-3 text-center rounded-xl bg-glass border border-glass-border">
           <p className="text-text-muted text-[11px]">Versi 1.0.0</p>
         </div>
       </div>
