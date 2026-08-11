@@ -60,19 +60,16 @@ export default function Login() {
 
   return (
     <div className="min-h-dvh flex items-center justify-center bg-bg-primary px-4">
-      {/* Background subtle gradient */}
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_50%)] pointer-events-none" />
-
       <div className={`relative w-full max-w-sm ${shake ? 'animate-shake' : ''}`}>
         {/* Logo & Branding */}
         <div className="text-center mb-10 animate-fade-in">
-          <div className="w-16 h-16 rounded-2xl bg-emerald-bg mx-auto mb-5 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.2)]">
-            <Wallet className="w-8 h-8 text-emerald-primary" />
+          <div className="w-12 h-12 rounded-xl bg-bg-secondary border border-glass-border mx-auto mb-5 flex items-center justify-center">
+            <Wallet className="w-6 h-6 text-text-primary" />
           </div>
-          <h1 className="text-gradient text-3xl font-extrabold tracking-tight mb-1">
+          <h1 className="text-text-primary text-3xl font-semibold tracking-tight mb-1">
             Artha
           </h1>
-          <p className="text-text-muted text-sm">
+          <p className="text-text-secondary text-sm">
             Dasbor Keuangan Pribadi
           </p>
         </div>
@@ -117,7 +114,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 bg-emerald-primary hover:bg-emerald-dark text-text-inverse font-semibold text-sm rounded-xl px-4 py-3 transition-all duration-[var(--transition-base)] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer hover:shadow-[0_0_20px_rgba(16,185,129,0.3)] active:scale-[0.98]"
+              className="w-full flex items-center justify-center gap-2 bg-text-primary text-bg-primary font-semibold text-sm rounded-xl px-4 py-3 transition-all duration-[var(--transition-base)] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer hover:opacity-90 active:scale-[0.98]"
             >
               {loading ? (
                 <>
@@ -135,8 +132,8 @@ export default function Login() {
 
           {/* Helper text */}
           <p className="text-text-muted text-[11px] text-center mt-4 leading-relaxed">
-            Masukkan kode akses alfanumerik unikmu.<br />
-            Kode baru akan otomatis membuat akun.
+            Hanya kode yang valid yang dapat digunakan.<br />
+            Silakan minta kode akses ke Admin.
           </p>
         </form>
       </div>

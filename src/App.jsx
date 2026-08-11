@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard'
 import Transactions from './pages/Transactions'
 import Budget from './pages/Budget'
 import Settings from './pages/Settings'
+import AdminDashboard from './pages/AdminDashboard'
 import './App.css'
 
 /**
@@ -22,7 +23,17 @@ export default function App() {
           {/* Public route — Login (no layout) */}
           <Route path="/login" element={<Login />} />
 
-          {/* Protected routes — with Layout */}
+          {/* Admin Route */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute adminOnly={true}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Protected routes — with Layout (User only) */}
           <Route
             path="/"
             element={

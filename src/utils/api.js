@@ -67,3 +67,24 @@ export async function deleteTransaction(id, userId) {
     method: 'DELETE',
   })
 }
+
+/**
+ * Admin: Generate a new access code
+ * @param {number} adminId
+ * @returns {Promise<{success, data, message}>}
+ */
+export async function adminGenerateCode(adminId) {
+  return request(`${API_BASE}/?action=generate_code`, {
+    method: 'POST',
+    body: JSON.stringify({ admin_id: adminId }),
+  })
+}
+
+/**
+ * Admin: Get all users
+ * @param {number} adminId
+ * @returns {Promise<{success, data, message}>}
+ */
+export async function adminGetUsers(adminId) {
+  return request(`${API_BASE}/?action=get_users&admin_id=${adminId}`)
+}
