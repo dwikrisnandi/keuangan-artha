@@ -69,7 +69,7 @@ export default function Login() {
           <div className="w-16 h-16 rounded-2xl bg-emerald-bg mx-auto mb-5 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.2)]">
             <Wallet className="w-8 h-8 text-emerald-primary" />
           </div>
-          <h1 className="text-text-primary text-2xl font-bold tracking-tight mb-1">
+          <h1 className="text-gradient text-3xl font-extrabold tracking-tight mb-1">
             Artha
           </h1>
           <p className="text-text-muted text-sm">

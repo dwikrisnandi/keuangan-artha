@@ -1,66 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 /* ========================================
-   Design System — Dasbor Keuangan Pribadi
-   Dark fintech aesthetic
+   Design System — Artha (Premium FAANG Aesthetic)
+   Sleek dark mode, mesh gradients, glassmorphism
    ======================================== */
 
 @theme {
-  /* Background */
-  --color-bg-primary: #121212;
-  --color-bg-secondary: #1A1A1A;
-  --color-bg-tertiary: #222222;
+  /* Premium Dark Backgrounds */
+  --color-bg-primary: #050505;
+  --color-bg-secondary: #0a0a0a;
+  --color-bg-tertiary: #111111;
 
-  /* Glassmorphism surfaces */
-  --color-glass: rgba(255, 255, 255, 0.05);
-  --color-glass-hover: rgba(255, 255, 255, 0.08);
-  --color-glass-border: rgba(255, 255, 255, 0.1);
-  --color-glass-border-hover: rgba(255, 255, 255, 0.15);
+  /* Premium Glassmorphism (Less opacity, more blur) */
+  --color-glass: rgba(255, 255, 255, 0.02);
+  --color-glass-hover: rgba(255, 255, 255, 0.04);
+  --color-glass-border: rgba(255, 255, 255, 0.06);
+  --color-glass-border-hover: rgba(255, 255, 255, 0.12);
 
-  /* Accent — Income (Emerald) */
-  --color-emerald-primary: #10B981;
-  --color-emerald-light: #34D399;
-  --color-emerald-dark: #059669;
-  --color-emerald-bg: rgba(16, 185, 129, 0.1);
-  --color-emerald-bg-hover: rgba(16, 185, 129, 0.15);
+  /* Vibrant Accents — Income (Neon Emerald) */
+  --color-emerald-primary: #00E676;
+  --color-emerald-light: #69F0AE;
+  --color-emerald-dark: #00C853;
+  --color-emerald-bg: rgba(0, 230, 118, 0.08);
+  --color-emerald-bg-hover: rgba(0, 230, 118, 0.15);
 
-  /* Accent — Expense (Rose) */
-  --color-rose-primary: #F43F5E;
-  --color-rose-light: #FB7185;
-  --color-rose-dark: #E11D48;
-  --color-rose-bg: rgba(244, 63, 94, 0.1);
-  --color-rose-bg-hover: rgba(244, 63, 94, 0.15);
+  /* Vibrant Accents — Expense (Neon Rose) */
+  --color-rose-primary: #FF1744;
+  --color-rose-light: #FF4081;
+  --color-rose-dark: #D50000;
+  --color-rose-bg: rgba(255, 23, 68, 0.08);
+  --color-rose-bg-hover: rgba(255, 23, 68, 0.15);
 
-  /* Text */
-  --color-text-primary: #F5F5F5;
-  --color-text-secondary: #A3A3A3;
-  --color-text-muted: #737373;
-  --color-text-inverse: #121212;
+  /* Typography */
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #A1A1AA; /* Zinc 400 */
+  --color-text-muted: #52525B;    /* Zinc 600 */
+  --color-text-inverse: #000000;
 
-  /* Utility colors */
-  --color-amber-primary: #F59E0B;
-  --color-amber-bg: rgba(245, 158, 11, 0.1);
-  --color-blue-primary: #3B82F6;
-  --color-blue-bg: rgba(59, 130, 246, 0.1);
+  /* Utilities */
+  --color-amber-primary: #FFC400;
+  --color-amber-bg: rgba(255, 196, 0, 0.08);
+  --color-blue-primary: #2979FF;
+  --color-blue-bg: rgba(41, 121, 255, 0.08);
 
-  /* Shadows */
-  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.3);
-  --shadow-glass-sm: 0 4px 16px rgba(0, 0, 0, 0.2);
-  --shadow-glow-emerald: 0 0 20px rgba(16, 185, 129, 0.15);
-  --shadow-glow-rose: 0 0 20px rgba(244, 63, 94, 0.15);
+  /* Shadows — Deep & Glow */
+  --shadow-glass: 0 16px 40px -8px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --shadow-glass-sm: 0 8px 20px -4px rgba(0, 0, 0, 0.6);
+  --shadow-glow-emerald: 0 0 24px -4px rgba(0, 230, 118, 0.3);
+  --shadow-glow-rose: 0 0 24px -4px rgba(255, 23, 68, 0.3);
 
-  /* Border radius */
-  --radius-card: 16px;
-  --radius-button: 12px;
-  --radius-badge: 8px;
+  /* Refined Border Radius */
+  --radius-card: 24px;
+  --radius-button: 16px;
+  --radius-badge: 10px;
 
-  /* Transitions */
-  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  /* Silky Smooth Transitions (Apple/FAANG style) */
+  --transition-fast: 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-base: 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow: 600ms cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* Font */
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  /* Modern Sans Font */
+  --font-sans: 'Outfit', system-ui, -apple-system, sans-serif;
 }
 
 /* ========================================
@@ -85,60 +86,87 @@ body {
   color: var(--color-text-primary);
   min-height: 100dvh;
   overflow-x: hidden;
+  position: relative;
 }
 
-#root {
-  min-height: 100dvh;
+/* Ambient Mesh Gradient Background */
+body::before {
+  content: '';
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: 
+    radial-gradient(circle at 15% 50%, rgba(0, 230, 118, 0.03) 0%, transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(255, 23, 68, 0.03) 0%, transparent 25%),
+    radial-gradient(circle at 50% 80%, rgba(41, 121, 255, 0.02) 0%, transparent 20%);
+  z-index: -1;
+  pointer-events: none;
+  animation: bgPulse 15s ease-in-out infinite alternate;
 }
 
-/* ========================================
-   Scrollbar (Webkit)
-   ======================================== */
+@keyframes bgPulse {
+  0% { transform: scale(1) translate(0, 0); }
+  50% { transform: scale(1.05) translate(2%, 2%); }
+  100% { transform: scale(1) translate(-2%, -2%); }
+}
 
+/* Scrollbar (Minimal) */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
-
 ::-webkit-scrollbar-track {
   background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
+  border-radius: 4px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
 }
 
 /* ========================================
-   Utility classes
+   Utility Classes (Premium Components)
    ======================================== */
 
 .glass-card {
-  background: var(--color-glass);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.005) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--color-glass-border);
+  border-top: 1px solid rgba(255, 255, 255, 0.08); /* Highlight edge for 3D feel */
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-glass);
   transition: all var(--transition-base);
 }
 
 .glass-card:hover {
-  background: var(--color-glass-hover);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
   border-color: var(--color-glass-border-hover);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .glass-card-static {
-  background: var(--color-glass);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.005) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--color-glass-border);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-glass);
+}
+
+/* Typography Enhancements */
+.text-gradient {
+  background: linear-gradient(135deg, #FFFFFF 0%, #A1A1AA 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* ========================================
@@ -148,18 +176,18 @@ body {
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(10px) scale(0.98);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(24px);
   }
   to {
     opacity: 1;
@@ -167,27 +195,18 @@ body {
   }
 }
 
-@keyframes pulse-glow {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-}
-
 .animate-fade-in {
-  animation: fadeIn 0.4s ease-out forwards;
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-slide-up {
-  animation: slideUp 0.5s ease-out forwards;
+  animation: slideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* Stagger children animation */
 .stagger-children > * {
   opacity: 0;
-  animation: fadeIn 0.4s ease-out forwards;
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
@@ -207,4 +226,3 @@ body {
 .animate-shake {
   animation: shake 0.5s ease-in-out;
 }
-
