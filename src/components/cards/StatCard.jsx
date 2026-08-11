@@ -62,10 +62,10 @@ export default function StatCard({
           </div>
         )}
       </div>
-      <p className="text-text-secondary text-sm font-medium mb-1">{title}</p>
-      <p className="text-text-primary text-2xl font-bold tracking-tight">{value}</p>
+      <p className="text-text-secondary text-[13px] font-medium mb-1.5">{title}</p>
+      <p className="text-text-primary text-xl font-semibold tracking-tight">{value}</p>
       {subtitle && (
-        <p className="text-text-muted text-xs mt-2">{subtitle}</p>
+        <p className="text-text-muted text-xs mt-2.5">{subtitle}</p>
       )}
     </GlassCard>
   )

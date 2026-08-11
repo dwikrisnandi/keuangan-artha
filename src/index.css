@@ -67,11 +67,14 @@ html {
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
+  text-rendering: optimizeLegibility;
 }
 
 body {
   min-height: 100dvh;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 /* Scrollbar (Invisible unless hovering) */

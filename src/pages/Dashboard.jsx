@@ -420,7 +420,7 @@ export default function Dashboard() {
       <button
         id="fab-add-transaction"
         onClick={() => setModalOpen(true)}
-        className="fixed bottom-24 md:bottom-8 right-6 w-14 h-14 rounded-2xl bg-emerald-primary hover:bg-emerald-dark text-text-inverse flex items-center justify-center shadow-[0_8px_30px_rgba(16,185,129,0.35)] hover:shadow-[0_8px_40px_rgba(16,185,129,0.5)] transition-all duration-[var(--transition-base)] active:scale-90 cursor-pointer z-50 hover:rotate-90"
+        className="fixed bottom-24 md:bottom-8 right-6 w-14 h-14 rounded-full bg-text-primary hover:bg-text-secondary text-bg-primary flex items-center justify-center shadow-[0_4px_24px_rgba(255,255,255,0.15)] transition-all duration-[var(--transition-base)] active:scale-90 cursor-pointer z-50 hover:rotate-90"
         aria-label="Tambah transaksi"
       >
         <Plus className="w-6 h-6" />
