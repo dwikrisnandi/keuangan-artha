@@ -41,7 +41,7 @@ export default function Dashboard() {
       const res = await getTransactions(user.id)
       setTransactions(res.data || [])
     } catch (err) {
-      showError(err.message || 'Gagal memuat data transaksi.')
+      showError(err.message || 'Failed to load transaction data.')
     } finally {
       setLoading(false)
     }
@@ -65,14 +65,14 @@ export default function Dashboard() {
     const totalExpense = thisMonth.filter((tx) => tx.type === 'expense').reduce((sum, tx) => sum + tx.amount, 0)
     const balance = totalIncome - totalExpense
 
-    const kebutuhan = thisMonth.filter((tx) => tx.type === 'expense' && tx.category === 'Kebutuhan').reduce((sum, tx) => sum + tx.amount, 0)
-    const keinginan = thisMonth.filter((tx) => tx.type === 'expense' && tx.category === 'Keinginan').reduce((sum, tx) => sum + tx.amount, 0)
-    const tabungan = thisMonth.filter((tx) => tx.type === 'expense' && tx.category === 'Tabungan').reduce((sum, tx) => sum + tx.amount, 0)
+    const kebutuhan = thisMonth.filter((tx) => tx.type === 'expense' && tx.category === 'Needs').reduce((sum, tx) => sum + tx.amount, 0)
+    const keinginan = thisMonth.filter((tx) => tx.type === 'expense' && tx.category === 'Wants').reduce((sum, tx) => sum + tx.amount, 0)
+    const tabungan = thisMonth.filter((tx) => tx.type === 'expense' && tx.category === 'Savings').reduce((sum, tx) => sum + tx.amount, 0)
 
     const expenseRatioData = [
-      { name: 'Kebutuhan', value: kebutuhan, color: '#10B981' },
-      { name: 'Keinginan', value: keinginan, color: '#F59E0B' },
-      { name: 'Tabungan', value: tabungan, color: '#3B82F6' },
+      { name: 'Needs', value: kebutuhan, color: '#10B981' },
+      { name: 'Wants', value: keinginan, color: '#F59E0B' },
+      { name: 'Savings', value: tabungan, color: '#3B82F6' },
     ].filter(d => d.value > 0)
 
     const last7DaysData = []
@@ -108,7 +108,7 @@ export default function Dashboard() {
   const handleAddTransaction = async (txData) => {
     try {
       await addTransaction({ ...txData, user_id: user.id })
-      success('Transaksi berhasil ditambahkan!')
+      success('Transaction added successfully!')
       await fetchData()
     } catch (err) {
       showError(err.message)
@@ -118,7 +118,7 @@ export default function Dashboard() {
   const handleDelete = async (id) => {
     try {
       await deleteTransaction(id, user.id)
-      success('Transaksi dihapus.')
+      success('Transaction deleted.')
       await fetchData()
     } catch (err) {
       showError(err.message)
@@ -141,7 +141,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-6 pb-20 md:pb-0 animate-fade-in">
       <div className="flex items-center justify-between">
-        <h2 className="text-text-primary text-xl font-bold tracking-tight">Ringkasan Bulan Ini</h2>
+        <h2 className="text-text-primary text-xl font-bold tracking-tight">This Month Summary</h2>
         <button onClick={fetchData} className="p-2 hover:bg-glass rounded-full transition-colors text-text-muted hover:text-text-primary">
           <RefreshCw className="w-4 h-4" />
         </button>
@@ -157,7 +157,7 @@ export default function Dashboard() {
           </div>
           <div className="relative z-10 flex flex-col h-full justify-between pt-2">
             <div className="w-full pr-12">
-              <p className="text-text-secondary text-sm font-medium mb-1">Saldo Saat Ini</p>
+              <p className="text-text-secondary text-sm font-medium mb-1">Current Balance</p>
               <h3 className="text-text-primary text-3xl sm:text-4xl font-bold tracking-tight truncate w-full" title={formatRupiah(metrics.balance)}>
                 {formatRupiah(metrics.balance)}
               </h3>
@@ -168,7 +168,7 @@ export default function Dashboard() {
                   <TrendingUp className="w-4 h-4 text-emerald-primary" />
                 </div>
                 <div>
-                  <p className="text-text-muted text-[11px] uppercase tracking-wider font-semibold">Pemasukan</p>
+                  <p className="text-text-muted text-[11px] uppercase tracking-wider font-semibold">Income</p>
                   <p className="text-text-primary text-sm font-medium">{formatRupiahShort(metrics.totalIncome)}</p>
                 </div>
               </div>
@@ -177,7 +177,7 @@ export default function Dashboard() {
                   <TrendingDown className="w-4 h-4 text-rose-primary" />
                 </div>
                 <div>
-                  <p className="text-text-muted text-[11px] uppercase tracking-wider font-semibold">Pengeluaran</p>
+                  <p className="text-text-muted text-[11px] uppercase tracking-wider font-semibold">Expense</p>
                   <p className="text-text-primary text-sm font-medium">{formatRupiahShort(metrics.totalExpense)}</p>
                 </div>
               </div>
@@ -186,7 +186,7 @@ export default function Dashboard() {
         </BentoCard>
 
         {/* Expense Ratio Chart */}
-        <BentoCard colSpan={1} md:colSpan={1} lg:colSpan={1} title="Rasio">
+        <BentoCard colSpan={1} md:colSpan={1} lg:colSpan={1} title="Ratio">
           <div className="flex-1 w-full h-full min-h-[140px] flex items-center justify-center relative">
             {metrics.expenseRatioData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -206,14 +206,14 @@ export default function Dashboard() {
             ) : (
               <div className="text-center text-text-muted">
                 <PieChartIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p className="text-xs">Kosong</p>
+                <p className="text-xs">Empty</p>
               </div>
             )}
           </div>
         </BentoCard>
 
         {/* Recent Transactions List (Spans 2 rows) */}
-        <BentoCard colSpan={1} md:colSpan={3} lg:colSpan={1} rowSpan={2} title="Terakhir" className="overflow-y-auto max-h-[450px] no-scrollbar">
+        <BentoCard colSpan={1} md:colSpan={3} lg:colSpan={1} rowSpan={2} title="Recent" className="overflow-y-auto max-h-[450px] no-scrollbar">
           <div className="flex flex-col gap-3">
             {transactions.slice(0, 7).map((tx) => (
               <div key={tx.id} className="flex items-center justify-between group p-2 -mx-2 rounded-xl hover:bg-glass transition-colors">
@@ -242,13 +242,13 @@ export default function Dashboard() {
               </div>
             ))}
             {transactions.length === 0 && (
-              <p className="text-text-muted text-sm text-center py-8">Belum ada transaksi.</p>
+              <p className="text-text-muted text-sm text-center py-8">No transactions yet.</p>
             )}
           </div>
         </BentoCard>
 
         {/* 7 Days Trend Chart */}
-        <BentoCard colSpan={1} md:colSpan={2} lg:colSpan={2} title="Tren 7 Hari">
+        <BentoCard colSpan={1} md:colSpan={2} lg:colSpan={2} title="7 Days Trend">
           <div className="flex-1 w-full min-h-[160px] relative">
             {metrics.has7DaysData ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -262,7 +262,7 @@ export default function Dashboard() {
             ) : (
               <div className="absolute inset-0 flex flex-col items-center justify-center text-text-muted">
                 <BarChart2 className="w-8 h-8 mb-2 opacity-50" />
-                <p className="text-xs">Belum ada pengeluaran</p>
+                <p className="text-xs">No expenses yet</p>
               </div>
             )}
           </div>
@@ -274,7 +274,7 @@ export default function Dashboard() {
             <div className="w-12 h-12 rounded-full border border-glass-border flex items-center justify-center mb-2">
               <Plus className="w-5 h-5" />
             </div>
-            <p className="text-sm font-medium">Catat Transaksi</p>
+            <p className="text-sm font-medium">Add Transaction</p>
           </div>
         </BentoCard>
 
@@ -284,7 +284,7 @@ export default function Dashboard() {
       <button
         onClick={() => setModalOpen(true)}
         className="md:hidden fixed bottom-24 right-6 w-14 h-14 rounded-full bg-text-primary hover:bg-text-secondary text-bg-primary flex items-center justify-center shadow-glass-sm transition-transform active:scale-90 z-50"
-        aria-label="Tambah transaksi"
+        aria-label="Add transaction"
       >
         <Plus className="w-6 h-6" />
       </button>

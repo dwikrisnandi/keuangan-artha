@@ -10,10 +10,10 @@ import {
 import { useAuth } from '../../context/AuthContext'
 
 const navItems = [
-  { to: '/', label: 'Dasbor', icon: LayoutDashboard },
-  { to: '/transactions', label: 'Transaksi', icon: ArrowLeftRight },
-  { to: '/budget', label: 'Anggaran', icon: PiggyBank },
-  { to: '/settings', label: 'Pengaturan', icon: Settings },
+  { to: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/transactions', label: 'Transactions', icon: ArrowLeftRight },
+  { to: '/budget', label: 'Budget', icon: PiggyBank },
+  { to: '/settings', label: 'Settings', icon: Settings },
 ]
 
 /**
@@ -32,7 +32,7 @@ export default function Sidebar() {
         </div>
         <div>
           <h2 className="text-text-primary text-sm font-bold tracking-tight">Artha</h2>
-          <p className="text-text-muted text-[11px]">Keuangan Pribadi</p>
+          <p className="text-text-muted text-[11px]">Personal Finance</p>
         </div>
       </div>
 
@@ -67,10 +67,10 @@ export default function Sidebar() {
           className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-rose-primary hover:bg-rose-primary/10 transition-all duration-[var(--transition-base)] cursor-pointer"
         >
           <LogOut className="w-[18px] h-[18px]" />
-          Keluar
+          Logout
         </button>
         <div className="glass-card p-3 text-center rounded-xl bg-glass border border-glass-border">
-          <p className="text-text-muted text-[11px]">Versi 1.0.0</p>
+          <p className="text-text-muted text-[11px]">Version 1.0.0</p>
         </div>
       </div>
     </aside>

@@ -7,10 +7,10 @@ import {
 } from 'lucide-react'
 
 const navItems = [
-  { to: '/', label: 'Dasbor', icon: LayoutDashboard },
-  { to: '/transactions', label: 'Transaksi', icon: ArrowLeftRight },
-  { to: '/budget', label: 'Anggaran', icon: PiggyBank },
-  { to: '/settings', label: 'Setelan', icon: Settings },
+  { to: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/transactions', label: 'Transactions', icon: ArrowLeftRight },
+  { to: '/budget', label: 'Budget', icon: PiggyBank },
+  { to: '/settings', label: 'Settings', icon: Settings },
 ]
 
 /**

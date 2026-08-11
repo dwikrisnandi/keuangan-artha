@@ -23,7 +23,7 @@ export default function Transactions() {
       const res = await getTransactions(user.id)
       setTransactions(res.data || [])
     } catch (err) {
-      showError(err.message || 'Gagal memuat data transaksi.')
+      showError(err.message || 'Failed to load transaction data.')
     } finally {
       setLoading(false)
     }
@@ -34,10 +34,10 @@ export default function Transactions() {
   }, [fetchData])
 
   const handleDelete = async (id) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus transaksi ini?')) return
+    if (!confirm('Are you sure you want to delete this transaction?')) return
     try {
       await deleteTransaction(id, user.id)
-      success('Transaksi dihapus.')
+      success('Transaction deleted.')
       await fetchData()
     } catch (err) {
       showError(err.message)
@@ -70,7 +70,7 @@ export default function Transactions() {
   return (
     <div className="space-y-6 animate-fade-in pb-20 md:pb-0">
       <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-        <h2 className="text-text-primary text-xl font-bold tracking-tight">Semua Transaksi</h2>
+        <h2 className="text-text-primary text-xl font-bold tracking-tight">All Transactions</h2>
         
         <div className="flex items-center gap-2 w-full md:w-auto">
           {/* Search Bar */}
@@ -80,7 +80,7 @@ export default function Transactions() {
             </div>
             <input
               type="text"
-              placeholder="Cari transaksi..."
+              placeholder="Search transactions..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="block w-full pl-10 pr-3 py-2 border border-glass-border rounded-xl leading-5 bg-bg-secondary text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-colors sm:text-sm"
@@ -94,9 +94,9 @@ export default function Transactions() {
               onChange={(e) => setFilterType(e.target.value)}
               className="appearance-none block w-full pl-3 pr-8 py-2 border border-glass-border rounded-xl bg-bg-secondary text-text-primary focus:outline-none focus:ring-1 focus:ring-text-primary transition-colors sm:text-sm cursor-pointer"
             >
-              <option value="all">Semua</option>
-              <option value="income">Pemasukan</option>
-              <option value="expense">Pengeluaran</option>
+              <option value="all">All</option>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
             </select>
             <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
               <Filter className="h-3.5 w-3.5 text-text-muted" />
@@ -111,8 +111,8 @@ export default function Transactions() {
             <div className="w-16 h-16 rounded-full bg-glass-border/30 flex items-center justify-center mb-4">
               <Search className="w-8 h-8 text-text-muted" />
             </div>
-            <p className="text-text-primary font-medium mb-1">Tidak ada transaksi ditemukan</p>
-            <p className="text-text-secondary text-sm">Coba sesuaikan kata kunci pencarian atau filter Anda.</p>
+            <p className="text-text-primary font-medium mb-1">No transactions found</p>
+            <p className="text-text-secondary text-sm">Try adjusting your search keywords or filters.</p>
           </div>
         ) : (
           <div className="divide-y divide-glass-border">
@@ -137,7 +137,7 @@ export default function Transactions() {
                   <button
                     onClick={() => handleDelete(tx.id)}
                     className="p-2 rounded-lg hover:bg-rose-primary/10 text-text-muted hover:text-rose-primary transition-colors focus:outline-none"
-                    aria-label="Hapus transaksi"
+                    aria-label="Delete transaction"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

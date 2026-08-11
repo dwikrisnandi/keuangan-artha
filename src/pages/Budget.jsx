@@ -21,7 +21,7 @@ export default function Budget() {
       const res = await getTransactions(user.id)
       setTransactions(res.data || [])
     } catch (err) {
-      showError(err.message || 'Gagal memuat data transaksi.')
+      showError(err.message || 'Failed to load transaction data.')
     } finally {
       setLoading(false)
     }
@@ -44,17 +44,17 @@ export default function Budget() {
     const totalIncome = thisMonth.filter((tx) => tx.type === 'income').reduce((sum, tx) => sum + tx.amount, 0)
     const totalExpense = thisMonth.filter((tx) => tx.type === 'expense').reduce((sum, tx) => sum + tx.amount, 0)
 
-    const kebutuhan = thisMonth.filter((tx) => tx.type === 'expense' && tx.category === 'Kebutuhan').reduce((sum, tx) => sum + tx.amount, 0)
-    const keinginan = thisMonth.filter((tx) => tx.type === 'expense' && tx.category === 'Keinginan').reduce((sum, tx) => sum + tx.amount, 0)
-    const tabungan = thisMonth.filter((tx) => tx.type === 'expense' && tx.category === 'Tabungan').reduce((sum, tx) => sum + tx.amount, 0)
+    const kebutuhan = thisMonth.filter((tx) => tx.type === 'expense' && tx.category === 'Needs').reduce((sum, tx) => sum + tx.amount, 0)
+    const keinginan = thisMonth.filter((tx) => tx.type === 'expense' && tx.category === 'Wants').reduce((sum, tx) => sum + tx.amount, 0)
+    const tabungan = thisMonth.filter((tx) => tx.type === 'expense' && tx.category === 'Savings').reduce((sum, tx) => sum + tx.amount, 0)
 
     return {
       totalIncome,
       totalExpense,
       budget: [
-        { label: 'Kebutuhan', description: 'Sewa, listrik, bahan makanan', pct: 50, spent: kebutuhan, limit: totalIncome * 0.5, color: 'emerald' },
-        { label: 'Keinginan', description: 'Hiburan, makan di luar, hobi', pct: 30, spent: keinginan, limit: totalIncome * 0.3, color: 'amber' },
-        { label: 'Tabungan', description: 'Investasi, dana darurat', pct: 20, spent: tabungan, limit: totalIncome * 0.2, color: 'blue' },
+        { label: 'Needs', description: 'Rent, electricity, groceries', pct: 50, spent: kebutuhan, limit: totalIncome * 0.5, color: 'emerald' },
+        { label: 'Wants', description: 'Entertainment, dining out, hobbies', pct: 30, spent: keinginan, limit: totalIncome * 0.3, color: 'amber' },
+        { label: 'Savings', description: 'Investments, emergency fund', pct: 20, spent: tabungan, limit: totalIncome * 0.2, color: 'blue' },
       ],
     }
   }, [transactions])
@@ -75,8 +75,8 @@ export default function Budget() {
   return (
     <div className="space-y-6 animate-fade-in pb-20 md:pb-0">
       <div className="flex flex-col gap-1">
-        <h2 className="text-text-primary text-xl font-bold tracking-tight">Anggaran 50/30/20</h2>
-        <p className="text-text-secondary text-sm">Kelola rasio keuangan ideal berdasarkan pemasukan bulan ini.</p>
+        <h2 className="text-text-primary text-xl font-bold tracking-tight">50/30/20 Budget</h2>
+        <p className="text-text-secondary text-sm">Manage your ideal financial ratio based on this month's income.</p>
       </div>
 
       {metrics.totalIncome === 0 ? (
@@ -84,9 +84,9 @@ export default function Budget() {
           <div className="w-16 h-16 rounded-full bg-glass-border/30 flex items-center justify-center mb-4">
             <PiggyBank className="w-8 h-8 text-text-muted" />
           </div>
-          <h3 className="text-text-primary font-semibold mb-2">Belum Ada Pemasukan</h3>
+          <h3 className="text-text-primary font-semibold mb-2">No Income Yet</h3>
           <p className="text-text-secondary text-sm max-w-md">
-            Sistem anggaran 50/30/20 membutuhkan data pemasukan untuk menghitung batas (limit) anggaran Anda. Silakan catat pemasukan terlebih dahulu.
+            The 50/30/20 budget system requires income data to calculate your budget limits. Please add income first.
           </p>
         </BentoCard>
       ) : (
@@ -95,14 +95,14 @@ export default function Budget() {
           <BentoCard className="bg-gradient-to-br from-bg-secondary to-bg-tertiary !border-glass-border-hover">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div>
-                <p className="text-text-secondary text-sm font-medium mb-1">Total Pemasukan (Dasar Anggaran)</p>
+                <p className="text-text-secondary text-sm font-medium mb-1">Total Income (Budget Basis)</p>
                 <h3 className="text-text-primary text-3xl font-bold tracking-tight">{formatRupiah(metrics.totalIncome)}</h3>
               </div>
               <div className="flex items-center gap-4">
                 <div className="p-4 rounded-2xl bg-bg-primary border border-glass-border">
                   <div className="flex items-center gap-2 mb-1">
                     <TrendingDown className="w-4 h-4 text-rose-primary" />
-                    <span className="text-text-muted text-xs uppercase font-semibold tracking-wider">Telah Digunakan</span>
+                    <span className="text-text-muted text-xs uppercase font-semibold tracking-wider">Used</span>
                   </div>
                   <p className="text-text-primary font-bold">{formatRupiah(metrics.totalExpense)}</p>
                 </div>
@@ -130,7 +130,7 @@ export default function Budget() {
                   <div className="space-y-4">
                     <div>
                       <div className="flex justify-between text-sm mb-1.5">
-                        <span className="text-text-secondary">Terpakai</span>
+                        <span className="text-text-secondary">Spent</span>
                         <span className="font-semibold text-text-primary">{formatRupiah(spent)}</span>
                       </div>
                       <div className="h-2.5 bg-bg-primary rounded-full overflow-hidden">
@@ -145,11 +145,11 @@ export default function Budget() {
 
                     <div className="pt-4 border-t border-glass-border">
                       <div className="flex justify-between text-sm">
-                        <span className="text-text-secondary">Limit Anggaran</span>
+                        <span className="text-text-secondary">Budget Limit</span>
                         <span className="font-medium text-text-primary">{formatRupiah(limit)}</span>
                       </div>
                       <div className="flex justify-between text-sm mt-1">
-                        <span className="text-text-secondary">Sisa</span>
+                        <span className="text-text-secondary">Remaining</span>
                         <span className={`font-bold ${isOver ? 'text-rose-primary' : 'text-emerald-primary'}`}>
                           {isOver ? '-' : ''}{formatRupiah(Math.abs(remaining))}
                         </span>
@@ -160,7 +160,7 @@ export default function Budget() {
                       <div className="mt-4 p-3 rounded-xl bg-rose-primary/10 border border-rose-primary/20 flex items-start gap-2">
                         <AlertCircle className="w-4 h-4 text-rose-primary shrink-0 mt-0.5" />
                         <p className="text-rose-primary text-xs leading-relaxed">
-                          Anda telah melewati batas anggaran {label} bulan ini sebesar {formatRupiah(Math.abs(remaining))}.
+                          You have exceeded your {label} budget this month by {formatRupiah(Math.abs(remaining))}.
                         </p>
                       </div>
                     )}

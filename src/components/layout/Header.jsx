@@ -23,10 +23,10 @@ export default function Header() {
 
   const getGreeting = () => {
     const hour = new Date().getHours()
-    if (hour < 12) return 'Selamat Pagi'
-    if (hour < 17) return 'Selamat Siang'
-    if (hour < 20) return 'Selamat Sore'
-    return 'Selamat Malam'
+    if (hour < 12) return 'Good Morning'
+    if (hour < 17) return 'Good Afternoon'
+    if (hour < 20) return 'Good Evening'
+    return 'Good Night'
   }
 
   const getIcon = (type) => {
@@ -43,7 +43,7 @@ export default function Header() {
       <div>
         <p className="text-text-secondary text-sm">{getGreeting()} 👋</p>
         <h1 className="text-text-primary text-lg md:text-xl font-bold tracking-tight">
-          Dasbor Keuangan
+          Financial Dashboard
         </h1>
       </div>
 
@@ -52,7 +52,7 @@ export default function Header() {
         {/* Search button */}
         <button
           className="w-10 h-10 rounded-xl bg-glass flex items-center justify-center border border-glass-border hover:border-glass-border-hover transition-all duration-200 cursor-pointer"
-          aria-label="Cari transaksi"
+          aria-label="Search transactions"
         >
           <Search className="w-4 h-4 text-text-secondary" />
         </button>
@@ -61,7 +61,7 @@ export default function Header() {
         <button
           onClick={logout}
           className="w-10 h-10 rounded-xl bg-glass flex items-center justify-center border border-glass-border hover:border-glass-border-hover transition-all duration-200 cursor-pointer text-text-secondary hover:text-rose-primary"
-          aria-label="Keluar"
+          aria-label="Logout"
         >
           <LogOut className="w-4 h-4" />
         </button>
@@ -71,7 +71,7 @@ export default function Header() {
           <button
             onClick={() => setIsPopoverOpen(!isPopoverOpen)}
             className={`w-10 h-10 rounded-xl bg-glass flex items-center justify-center border transition-all duration-200 cursor-pointer ${isPopoverOpen ? 'border-text-primary' : 'border-glass-border hover:border-glass-border-hover'}`}
-            aria-label="Notifikasi"
+            aria-label="Notifications"
           >
             <Bell className="w-4 h-4 text-text-secondary" />
             {/* Unread dot */}
@@ -84,10 +84,10 @@ export default function Header() {
           {isPopoverOpen && (
             <div className="absolute right-0 mt-3 w-80 max-w-[calc(100vw-32px)] bg-bg-card border border-glass-border rounded-2xl shadow-glass overflow-hidden animate-slide-up z-50">
               <div className="flex items-center justify-between px-4 py-3 border-b border-glass-border bg-bg-secondary/50">
-                <h3 className="text-sm font-bold text-text-primary">Notifikasi</h3>
+                <h3 className="text-sm font-bold text-text-primary">Notifications</h3>
                 {unreadCount > 0 && (
                   <button onClick={markAllAsRead} className="text-[11px] font-medium text-emerald-primary hover:text-emerald-primary/80 transition-colors cursor-pointer flex items-center gap-1">
-                    <Check className="w-3 h-3" /> Tandai semua dibaca
+                    <Check className="w-3 h-3" /> Mark all as read
                   </button>
                 )}
               </div>
@@ -96,7 +96,7 @@ export default function Header() {
                 {notifications.length === 0 ? (
                   <div className="py-8 text-center text-text-muted text-sm flex flex-col items-center gap-2">
                     <Bell className="w-6 h-6 opacity-20" />
-                    Belum ada notifikasi
+                    No notifications yet
                   </div>
                 ) : (
                   <div className="divide-y divide-glass-border">
@@ -113,7 +113,7 @@ export default function Header() {
                           <h4 className={`text-sm font-semibold mb-1 ${notif.isRead ? 'text-text-secondary' : 'text-text-primary'}`}>{notif.title}</h4>
                           <p className="text-xs text-text-muted leading-relaxed">{notif.message}</p>
                           {!notif.isRead && (
-                            <span className="inline-block mt-2 text-[10px] font-medium text-blue-primary bg-blue-primary/10 px-2 py-0.5 rounded-full">Baru</span>
+                            <span className="inline-block mt-2 text-[10px] font-medium text-blue-primary bg-blue-primary/10 px-2 py-0.5 rounded-full">New</span>
                           )}
                         </div>
                       </div>
