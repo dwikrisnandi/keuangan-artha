@@ -1,43 +1,24 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import {
-  Wallet,
-  TrendingUp,
-  TrendingDown,
-  Plus,
-  ArrowDownLeft,
-  ArrowUpRight,
-  Loader2,
-  RefreshCw,
-  Trash2,
-  PieChart as PieChartIcon,
-  BarChart2
+  Wallet, TrendingUp, TrendingDown, Plus, ArrowDownLeft, ArrowUpRight,
+  RefreshCw, Trash2, PieChart as PieChartIcon, BarChart2
 } from 'lucide-react'
 import {
-  PieChart,
-  Pie,
-  Cell,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
+  PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer
 } from 'recharts'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 import { getTransactions, addTransaction, deleteTransaction } from '../utils/api'
 import { formatRupiah, formatRupiahShort } from '../utils/formatCurrency'
-import StatCard from '../components/cards/StatCard'
-import GlassCard from '../components/ui/GlassCard'
+import BentoCard from '../components/ui/BentoCard'
+import Skeleton from '../components/ui/Skeleton'
 import TransactionModal from '../components/ui/TransactionModal'
 
-/**
- * Custom Tooltip for Recharts
- */
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-bg-tertiary/90 backdrop-blur-md border border-glass-border p-3 rounded-xl shadow-lg">
-        <p className="text-text-primary text-sm font-medium mb-1">{payload[0].name || payload[0].payload.name}</p>
+      <div className="bg-bg-tertiary/95 backdrop-blur-md border border-glass-border p-3 rounded-xl shadow-glass">
+        <p className="text-text-primary text-xs font-medium mb-1">{payload[0].name || payload[0].payload.name}</p>
         <p className="text-emerald-primary font-bold">{formatRupiah(payload[0].value)}</p>
       </div>
     )
@@ -45,36 +26,30 @@ const CustomTooltip = ({ active, payload }) => {
   return null
 }
 
-/**
- * Dashboard — Main overview page with real data from API
- */
 export default function Dashboard() {
   const { user } = useAuth()
+  const { success, error: showError } = useToast()
   const [transactions, setTransactions] = useState([])
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
-  const [error, setError] = useState('')
 
-  // Fetch transactions
   const fetchData = useCallback(async () => {
     if (!user) return
     setLoading(true)
-    setError('')
     try {
       const res = await getTransactions(user.id)
       setTransactions(res.data || [])
     } catch (err) {
-      setError(err.message || 'Gagal memuat data.')
+      showError(err.message || 'Gagal memuat data transaksi.')
     } finally {
       setLoading(false)
     }
-  }, [user])
+  }, [user, showError])
 
   useEffect(() => {
     fetchData()
   }, [fetchData])
 
-  // Computed metrics
   const metrics = useMemo(() => {
     const now = new Date()
     const currentMonth = now.getMonth()
@@ -85,41 +60,20 @@ export default function Dashboard() {
       return d.getMonth() === currentMonth && d.getFullYear() === currentYear
     })
 
-    const totalIncome = thisMonth
-      .filter((tx) => tx.type === 'income')
-      .reduce((sum, tx) => sum + tx.amount, 0)
-
-    const totalExpense = thisMonth
-      .filter((tx) => tx.type === 'expense')
-      .reduce((sum, tx) => sum + tx.amount, 0)
-
+    const totalIncome = thisMonth.filter((tx) => tx.type === 'income').reduce((sum, tx) => sum + tx.amount, 0)
+    const totalExpense = thisMonth.filter((tx) => tx.type === 'expense').reduce((sum, tx) => sum + tx.amount, 0)
     const balance = totalIncome - totalExpense
 
-    // 50/30/20 breakdown
-    const kebutuhan = thisMonth
-      .filter((tx) => tx.type === 'expense' && tx.category === 'Kebutuhan')
-      .reduce((sum, tx) => sum + tx.amount, 0)
+    const kebutuhan = thisMonth.filter((tx) => tx.type === 'expense' && tx.category === 'Kebutuhan').reduce((sum, tx) => sum + tx.amount, 0)
+    const keinginan = thisMonth.filter((tx) => tx.type === 'expense' && tx.category === 'Keinginan').reduce((sum, tx) => sum + tx.amount, 0)
+    const tabungan = thisMonth.filter((tx) => tx.type === 'expense' && tx.category === 'Tabungan').reduce((sum, tx) => sum + tx.amount, 0)
 
-    const keinginan = thisMonth
-      .filter((tx) => tx.type === 'expense' && tx.category === 'Keinginan')
-      .reduce((sum, tx) => sum + tx.amount, 0)
-
-    const tabungan = thisMonth
-      .filter((tx) => tx.type === 'expense' && tx.category === 'Tabungan')
-      .reduce((sum, tx) => sum + tx.amount, 0)
-
-    const budgetKebutuhan = totalIncome * 0.5
-    const budgetKeinginan = totalIncome * 0.3
-    const budgetTabungan = totalIncome * 0.2
-
-    // Recharts Data: Expense Ratio (Donut)
     const expenseRatioData = [
-      { name: 'Kebutuhan', value: kebutuhan, color: '#10B981' }, // emerald
-      { name: 'Keinginan', value: keinginan, color: '#F59E0B' }, // amber
-      { name: 'Tabungan', value: tabungan, color: '#3B82F6' },  // blue
+      { name: 'Kebutuhan', value: kebutuhan, color: '#10B981' },
+      { name: 'Keinginan', value: keinginan, color: '#F59E0B' },
+      { name: 'Tabungan', value: tabungan, color: '#3B82F6' },
     ].filter(d => d.value > 0)
 
-    // Recharts Data: 7 Days Trend (Bar)
     const last7DaysData = []
     for (let i = 6; i >= 0; i--) {
       const d = new Date()
@@ -131,302 +85,195 @@ export default function Dashboard() {
         .filter(tx => tx.type === 'expense' && tx.date === dateStr)
         .reduce((sum, tx) => sum + tx.amount, 0)
         
-      last7DaysData.push({
-        name: shortDay,
-        fullDate: dateStr,
-        value: dayExpense
-      })
+      last7DaysData.push({ name: shortDay, fullDate: dateStr, value: dayExpense })
     }
-    
-    // Check if there is any expense in the last 7 days
     const has7DaysData = last7DaysData.some(d => d.value > 0)
 
-    return {
-      totalIncome,
-      totalExpense,
-      balance,
-      budget: [
-        { label: 'Kebutuhan', pct: 50, spent: kebutuhan, limit: budgetKebutuhan, color: 'emerald' },
-        { label: 'Keinginan', pct: 30, spent: keinginan, limit: budgetKeinginan, color: 'amber' },
-        { label: 'Tabungan', pct: 20, spent: tabungan, limit: budgetTabungan, color: 'blue' },
-      ],
-      expenseRatioData,
-      last7DaysData,
-      has7DaysData
-    }
+    return { totalIncome, totalExpense, balance, expenseRatioData, last7DaysData, has7DaysData }
   }, [transactions])
 
-  const handleAddTransaction = useCallback(async (txData) => {
-    await addTransaction({ ...txData, user_id: user.id })
-    await fetchData()
-  }, [user, fetchData])
-
-  const handleDelete = useCallback(async (id) => {
+  const handleAddTransaction = async (txData) => {
     try {
-      await deleteTransaction(id, user.id)
+      await addTransaction({ ...txData, user_id: user.id })
+      success('Transaksi berhasil ditambahkan!')
       await fetchData()
     } catch (err) {
-      setError(err.message)
+      showError(err.message)
     }
-  }, [user, fetchData])
-
-  const formatDate = (dateStr) => {
-    return new Date(dateStr).toLocaleDateString('id-ID', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    })
   }
 
-  if (loading) {
+  const handleDelete = async (id) => {
+    try {
+      await deleteTransaction(id, user.id)
+      success('Transaksi dihapus.')
+      await fetchData()
+    } catch (err) {
+      showError(err.message)
+    }
+  }
+
+  const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
+
+  // Skeleton Loaders
+  if (loading && transactions.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-8 h-8 text-emerald-primary animate-spin" />
-          <p className="text-text-muted text-sm">Memuat data...</p>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-[minmax(180px,auto)]">
+        <BentoCard colSpan={2}><Skeleton className="h-full w-full" /></BentoCard>
+        <BentoCard><Skeleton className="h-full w-full" /></BentoCard>
+        <BentoCard colSpan={3} rowSpan={2}><Skeleton className="h-[400px] w-full" /></BentoCard>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
-      {/* Error banner */}
-      {error && (
-        <div className="flex items-center justify-between bg-rose-bg border border-rose-primary/20 rounded-xl px-4 py-3 animate-fade-in">
-          <p className="text-rose-primary text-sm">{error}</p>
-          <button onClick={fetchData} className="text-rose-primary hover:text-rose-light cursor-pointer">
-            <RefreshCw className="w-4 h-4" />
-          </button>
-        </div>
-      )}
-
-      {/* Metric cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 stagger-children">
-        <StatCard
-          title="Saldo Saat Ini"
-          value={formatRupiah(metrics.balance)}
-          subtitle="Pemasukan − Pengeluaran"
-          variant="balance"
-          icon={Wallet}
-        />
-        <StatCard
-          title="Pemasukan Bulan Ini"
-          value={formatRupiah(metrics.totalIncome)}
-          subtitle="Total pemasukan"
-          variant="income"
-          icon={TrendingUp}
-        />
-        <StatCard
-          title="Pengeluaran Bulan Ini"
-          value={formatRupiah(metrics.totalExpense)}
-          subtitle="Total pengeluaran"
-          variant="expense"
-          icon={TrendingDown}
-        />
+    <div className="space-y-6 pb-20 md:pb-0 animate-fade-in">
+      <div className="flex items-center justify-between">
+        <h2 className="text-text-primary text-xl font-bold tracking-tight">Ringkasan Bulan Ini</h2>
+        <button onClick={fetchData} className="p-2 hover:bg-glass rounded-full transition-colors text-text-muted hover:text-text-primary">
+          <RefreshCw className="w-4 h-4" />
+        </button>
       </div>
 
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-fade-in">
+      {/* Bento Grid Layout */}
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 auto-rows-[minmax(160px,auto)]">
         
-        {/* Donut Chart: Expense Ratio */}
-        <GlassCard hover={false} className="p-5 flex flex-col">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="p-2 rounded-lg bg-emerald-bg">
-              <PieChartIcon className="w-4 h-4 text-emerald-primary" />
-            </div>
-            <h2 className="text-text-primary text-base font-semibold">Rasio Pengeluaran</h2>
+        {/* Main Balance Card (Hero) */}
+        <BentoCard colSpan={2} className="bg-gradient-to-br from-[#111] to-[#000] !border-glass-border-hover relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+            <Wallet className="w-32 h-32 text-white" />
           </div>
-          
-          <div className="flex-1 min-h-[250px] relative">
+          <div className="relative z-10 flex flex-col h-full justify-between">
+            <div>
+              <p className="text-text-secondary text-sm font-medium mb-1">Saldo Saat Ini</p>
+              <h3 className="text-text-primary text-4xl font-bold tracking-tight">{formatRupiah(metrics.balance)}</h3>
+            </div>
+            <div className="flex items-center gap-4 mt-6">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-emerald-bg flex items-center justify-center">
+                  <TrendingUp className="w-4 h-4 text-emerald-primary" />
+                </div>
+                <div>
+                  <p className="text-text-muted text-[11px] uppercase tracking-wider font-semibold">Pemasukan</p>
+                  <p className="text-text-primary text-sm font-medium">{formatRupiahShort(metrics.totalIncome)}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-rose-bg flex items-center justify-center">
+                  <TrendingDown className="w-4 h-4 text-rose-primary" />
+                </div>
+                <div>
+                  <p className="text-text-muted text-[11px] uppercase tracking-wider font-semibold">Pengeluaran</p>
+                  <p className="text-text-primary text-sm font-medium">{formatRupiahShort(metrics.totalExpense)}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </BentoCard>
+
+        {/* Expense Ratio Chart */}
+        <BentoCard colSpan={1} md:colSpan={1} lg:colSpan={1} title="Rasio">
+          <div className="flex-1 w-full h-full min-h-[140px] flex items-center justify-center relative">
             {metrics.expenseRatioData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={metrics.expenseRatioData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={70}
-                    outerRadius={90}
-                    paddingAngle={5}
-                    dataKey="value"
-                    stroke="none"
+                    cx="50%" cy="50%" innerRadius="60%" outerRadius="90%" paddingAngle={4}
+                    dataKey="value" stroke="none"
                   >
                     {metrics.expenseRatioData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip content={<CustomTooltip />} cursor={{fill: 'transparent'}} />
+                  <Tooltip content={<CustomTooltip />} />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-text-muted">
-                <PieChartIcon className="w-10 h-10 mb-2 opacity-50" />
-                <p className="text-sm">Belum ada data transaksi</p>
+              <div className="text-center text-text-muted">
+                <PieChartIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <p className="text-xs">Kosong</p>
               </div>
             )}
           </div>
-        </GlassCard>
+        </BentoCard>
 
-        {/* Bar Chart: 7 Days Trend */}
-        <GlassCard hover={false} className="p-5 flex flex-col">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="p-2 rounded-lg bg-rose-bg">
-              <BarChart2 className="w-4 h-4 text-rose-primary" />
-            </div>
-            <h2 className="text-text-primary text-base font-semibold">Tren 7 Hari Terakhir</h2>
-          </div>
-          
-          <div className="flex-1 min-h-[250px] relative">
-            {metrics.has7DaysData ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={metrics.last7DaysData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <XAxis 
-                    dataKey="name" 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fill: '#A3A3A3', fontSize: 12 }} 
-                    dy={10}
-                  />
-                  <YAxis 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fill: '#A3A3A3', fontSize: 12 }} 
-                    tickFormatter={(val) => formatRupiahShort(val)}
-                  />
-                  <Tooltip content={<CustomTooltip />} cursor={{fill: 'rgba(255,255,255,0.05)'}} />
-                  <Bar dataKey="value" fill="#F43F5E" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-text-muted">
-                <BarChart2 className="w-10 h-10 mb-2 opacity-50" />
-                <p className="text-sm">Belum ada pengeluaran</p>
-              </div>
-            )}
-          </div>
-        </GlassCard>
-
-      </div>
-
-      {/* 50/30/20 Budget Rule */}
-      {metrics.totalIncome > 0 && (
-        <div className="animate-fade-in">
-          <h2 className="text-text-primary text-lg font-semibold mb-4">
-            Detail Aturan 50/30/20
-          </h2>
-          <GlassCard hover={false} className="p-5 space-y-4">
-            {metrics.budget.map(({ label, pct, spent, limit, color }) => {
-              const progress = limit > 0 ? Math.min((spent / limit) * 100, 100) : 0
-              const isOver = spent > limit
-
-              return (
-                <div key={label}>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className={`w-2 h-2 rounded-full bg-${color}-primary`} />
-                      <span className="text-text-primary text-sm font-medium">
-                        {label} ({pct}%)
-                      </span>
-                    </div>
-                    <span className={`text-xs font-medium ${isOver ? 'text-rose-primary' : 'text-text-secondary'}`}>
-                      {formatRupiah(spent)} / {formatRupiah(limit)}
-                    </span>
-                  </div>
-                  <div className="h-2 bg-bg-primary/60 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-500 ease-out ${
-                        isOver ? 'bg-rose-primary' : `bg-${color}-primary`
-                      }`}
-                      style={{ width: `${progress}%` }}
-                    />
-                  </div>
-                </div>
-              )
-            })}
-          </GlassCard>
-        </div>
-      )}
-
-      {/* Recent Transactions */}
-      <div className="animate-fade-in">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-text-primary text-lg font-semibold">Transaksi Terakhir</h2>
-          <button
-            onClick={fetchData}
-            className="flex items-center gap-1.5 text-emerald-primary text-sm font-medium hover:text-emerald-light transition-colors cursor-pointer"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            Refresh
-          </button>
-        </div>
-
-        {transactions.length === 0 ? (
-          <GlassCard hover={false} className="p-8 flex flex-col items-center justify-center">
-            <div className="w-14 h-14 rounded-2xl bg-glass flex items-center justify-center mb-3">
-              <Wallet className="w-7 h-7 text-text-muted" />
-            </div>
-            <p className="text-text-secondary text-sm font-medium mb-1">Belum ada transaksi</p>
-            <p className="text-text-muted text-xs text-center">
-              Tekan tombol <span className="text-emerald-primary font-semibold">+</span> untuk menambah transaksi pertamamu.
-            </p>
-          </GlassCard>
-        ) : (
-          <GlassCard hover={false} className="divide-y divide-glass-border overflow-hidden">
-            {transactions.slice(0, 10).map((tx) => (
-              <div
-                key={tx.id}
-                className="flex items-center justify-between px-4 py-3.5 hover:bg-glass-hover transition-colors group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                    tx.type === 'income' ? 'bg-emerald-bg' : 'bg-rose-bg'
+        {/* Recent Transactions List (Spans 2 rows) */}
+        <BentoCard colSpan={1} md:colSpan={3} lg:colSpan={1} rowSpan={2} title="Terakhir" className="overflow-y-auto max-h-[450px] no-scrollbar">
+          <div className="flex flex-col gap-3">
+            {transactions.slice(0, 7).map((tx) => (
+              <div key={tx.id} className="flex items-center justify-between group p-2 -mx-2 rounded-xl hover:bg-glass transition-colors">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
+                    tx.type === 'income' ? 'bg-emerald-primary/10 text-emerald-primary' : 'bg-rose-primary/10 text-rose-primary'
                   }`}>
-                    {tx.type === 'income'
-                      ? <ArrowDownLeft className="w-4 h-4 text-emerald-primary" />
-                      : <ArrowUpRight className="w-4 h-4 text-rose-primary" />
-                    }
+                    {tx.type === 'income' ? <ArrowDownLeft className="w-4 h-4" /> : <ArrowUpRight className="w-4 h-4" />}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-text-primary text-sm font-medium truncate">
-                      {tx.description || tx.category}
-                    </p>
-                    <p className="text-text-muted text-xs">
-                      {tx.category} · {formatDate(tx.date)}
-                    </p>
+                    <p className="text-text-primary text-sm font-medium truncate">{tx.description || tx.category}</p>
+                    <p className="text-text-muted text-[11px] truncate">{formatDate(tx.date)}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <p className={`text-sm font-semibold whitespace-nowrap ${
-                    tx.type === 'income' ? 'text-emerald-primary' : 'text-rose-primary'
-                  }`}>
-                    {tx.type === 'income' ? '+' : '-'}{formatRupiah(tx.amount)}
+                <div className="flex items-center gap-2 shrink-0">
+                  <p className={`text-sm font-semibold whitespace-nowrap ${tx.type === 'income' ? 'text-emerald-primary' : 'text-text-primary'}`}>
+                    {tx.type === 'income' ? '+' : '-'}{formatRupiahShort(tx.amount)}
                   </p>
                   <button
                     onClick={() => handleDelete(tx.id)}
-                    className="opacity-0 group-hover:opacity-100 w-7 h-7 rounded-lg flex items-center justify-center hover:bg-rose-bg text-text-muted hover:text-rose-primary transition-all cursor-pointer"
-                    aria-label="Hapus transaksi"
+                    className="opacity-0 group-hover:opacity-100 p-1.5 rounded-md hover:bg-rose-primary/20 text-text-muted hover:text-rose-primary transition-all"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
             ))}
-          </GlassCard>
-        )}
+            {transactions.length === 0 && (
+              <p className="text-text-muted text-sm text-center py-8">Belum ada transaksi.</p>
+            )}
+          </div>
+        </BentoCard>
+
+        {/* 7 Days Trend Chart */}
+        <BentoCard colSpan={1} md:colSpan={2} lg:colSpan={2} title="Tren 7 Hari">
+          <div className="flex-1 w-full min-h-[160px] relative">
+            {metrics.has7DaysData ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={metrics.last7DaysData} margin={{ top: 10, right: 0, left: -25, bottom: 0 }}>
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#666', fontSize: 11 }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#666', fontSize: 11 }} tickFormatter={(val) => formatRupiahShort(val)} />
+                  <Tooltip content={<CustomTooltip />} cursor={{fill: 'rgba(255,255,255,0.03)'}} />
+                  <Bar dataKey="value" fill="#333" radius={[4, 4, 0, 0]} activeBar={{ fill: '#F43F5E' }} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-text-muted">
+                <BarChart2 className="w-8 h-8 mb-2 opacity-50" />
+                <p className="text-xs">Belum ada pengeluaran</p>
+              </div>
+            )}
+          </div>
+        </BentoCard>
+
+        {/* Quick Action */}
+        <BentoCard colSpan={1} md:colSpan={1} lg:colSpan={1} className="flex items-center justify-center hover:bg-glass cursor-pointer" >
+          <div onClick={() => setModalOpen(true)} className="flex flex-col items-center justify-center h-full w-full text-text-muted hover:text-text-primary transition-colors">
+            <div className="w-12 h-12 rounded-full border border-glass-border flex items-center justify-center mb-2">
+              <Plus className="w-5 h-5" />
+            </div>
+            <p className="text-sm font-medium">Catat Transaksi</p>
+          </div>
+        </BentoCard>
+
       </div>
 
-      {/* FAB — Floating Action Button */}
+      {/* FAB — Floating Action Button (Mobile only) */}
       <button
-        id="fab-add-transaction"
         onClick={() => setModalOpen(true)}
-        className="fixed bottom-24 md:bottom-8 right-6 w-14 h-14 rounded-full bg-text-primary hover:bg-text-secondary text-bg-primary flex items-center justify-center shadow-[0_4px_24px_rgba(255,255,255,0.15)] transition-all duration-[var(--transition-base)] active:scale-90 cursor-pointer z-50 hover:rotate-90"
+        className="md:hidden fixed bottom-24 right-6 w-14 h-14 rounded-full bg-text-primary hover:bg-text-secondary text-bg-primary flex items-center justify-center shadow-glass-sm transition-transform active:scale-90 z-50"
         aria-label="Tambah transaksi"
       >
         <Plus className="w-6 h-6" />
       </button>
 
-      {/* Transaction Modal */}
       <TransactionModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}

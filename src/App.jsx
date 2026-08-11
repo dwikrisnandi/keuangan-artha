@@ -8,6 +8,7 @@ import Transactions from './pages/Transactions'
 import Budget from './pages/Budget'
 import Settings from './pages/Settings'
 import AdminDashboard from './pages/AdminDashboard'
+import { ToastProvider } from './context/ToastContext'
 import './App.css'
 
 /**
@@ -18,8 +19,9 @@ import './App.css'
 export default function App() {
   return (
     <BrowserRouter basename="/keuangan">
-      <AuthProvider>
-        <Routes>
+      <ToastProvider>
+        <AuthProvider>
+          <Routes>
           {/* Public route — Login (no layout) */}
           <Route path="/login" element={<Login />} />
 
@@ -67,7 +69,8 @@ export default function App() {
             }
           />
         </Routes>
-      </AuthProvider>
+        </AuthProvider>
+      </ToastProvider>
     </BrowserRouter>
   )
 }
