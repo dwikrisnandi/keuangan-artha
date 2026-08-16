@@ -3,7 +3,7 @@
  * Abstraksi fetch ke backend PHP
  */
 
-const API_BASE = 'http://localhost/keuangan/api'
+const API_BASE = 'https://apps.arthavirddhisampada.online/keuangan/api'
 
 /**
  * Generic fetch wrapper with JSON parsing
@@ -17,7 +17,7 @@ async function request(url, options = {}) {
   const data = await res.json()
 
   if (!res.ok || !data.success) {
-    throw new Error(data.message || 'Terjadi kesalahan pada server.')
+    throw new Error(data.message || 'A server error occurred.')
   }
 
   return data
@@ -87,4 +87,17 @@ export async function adminGenerateCode(adminId) {
  */
 export async function adminGetUsers(adminId) {
   return request(`${API_BASE}/?action=get_users&admin_id=${adminId}`)
+}
+
+/**
+ * Set user's preferred currency
+ * @param {number} userId 
+ * @param {string} currencyCode 
+ * @returns {Promise<{success, data, message}>}
+ */
+export async function setCurrency(userId, currencyCode) {
+  return request(`${API_BASE}/?action=set_currency`, {
+    method: 'POST',
+    body: JSON.stringify({ user_id: userId, currency_code: currencyCode }),
+  })
 }

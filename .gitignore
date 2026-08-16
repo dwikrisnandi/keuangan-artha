@@ -24,3 +24,8 @@ Thumbs.db
 .env
 .env.local
 .env.*.local
+
+# Sensitive and Production files
+api/config.php
+*.zip
+keuangan_production.zip

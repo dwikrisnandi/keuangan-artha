@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Navigate } from 'react-router-dom'
 import { Wallet, ArrowRight, Loader2 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { useCurrency } from '../context/CurrencyContext'
 
 /**
  * Login — Fullscreen minimalist login page
@@ -15,6 +16,11 @@ export default function Login() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [shake, setShake] = useState(false)
+
+  // Onboarding state
+  const { changeCurrency } = useCurrency()
+  const [showCurrencySetup, setShowCurrencySetup] = useState(false)
+  const [detectedCurrency, setDetectedCurrency] = useState('IDR')
 
   // If already authenticated, redirect to dashboard
   if (isAuthenticated) {
@@ -48,14 +54,71 @@ export default function Login() {
     setLoading(true)
 
     try {
-      await login(trimmed)
-      navigate('/', { replace: true })
+      const userData = await login(trimmed)
+      
+      // Check if user has a currency code
+      if (!userData.currency_code) {
+        // Auto detect based on timezone
+        let guessed = 'IDR'
+        try {
+           const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''
+           if (tz.includes('America')) guessed = 'USD'
+           else if (tz.includes('Europe')) guessed = 'EUR'
+           else if (tz.includes('London')) guessed = 'GBP'
+           else if (tz.includes('Singapore')) guessed = 'SGD'
+        } catch(e){}
+        
+        setDetectedCurrency(guessed)
+        setShowCurrencySetup(true)
+      } else {
+        navigate('/', { replace: true })
+      }
     } catch (err) {
       setError(err.message || 'Login failed. Try again.')
       triggerShake()
     } finally {
       setLoading(false)
     }
+  }
+
+  if (showCurrencySetup) {
+    return (
+      <div className="min-h-dvh flex items-center justify-center bg-bg-primary px-4 animate-fade-in">
+        <div className="glass-card-static p-8 w-full max-w-sm text-center">
+          <div className="w-12 h-12 rounded-xl bg-emerald-primary/10 border border-emerald-primary/20 mx-auto mb-5 flex items-center justify-center">
+            <Wallet className="w-6 h-6 text-emerald-primary" />
+          </div>
+          <h2 className="text-text-primary text-2xl font-bold tracking-tight mb-2">Welcome!</h2>
+          <p className="text-sm text-text-secondary mb-6 leading-relaxed">
+            We've detected your region.<br/>Please confirm your preferred currency.
+          </p>
+          
+          <select 
+             value={detectedCurrency} 
+             onChange={(e) => setDetectedCurrency(e.target.value)}
+             className="w-full bg-bg-primary/60 border border-glass-border rounded-xl px-4 py-3 mb-6 text-text-primary text-sm focus:outline-none focus:border-emerald-primary/50 transition-all cursor-pointer"
+          >
+             <option value="IDR">IDR (Indonesian Rupiah)</option>
+             <option value="USD">USD (US Dollar)</option>
+             <option value="EUR">EUR (Euro)</option>
+             <option value="GBP">GBP (British Pound)</option>
+             <option value="SGD">SGD (Singapore Dollar)</option>
+          </select>
+          
+          <button 
+            onClick={async () => {
+              setLoading(true)
+              await changeCurrency(detectedCurrency)
+              navigate('/', { replace: true })
+            }}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2 bg-text-primary text-bg-primary font-semibold text-sm rounded-xl px-4 py-3 transition-all duration-[var(--transition-base)] disabled:opacity-50 hover:opacity-90 active:scale-[0.98] cursor-pointer"
+          >
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Continue to Dashboard'}
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (

@@ -2,13 +2,15 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Search, ArrowDownLeft, ArrowUpRight, Trash2, Filter } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
+import { useCurrency } from '../context/CurrencyContext'
 import { getTransactions, deleteTransaction } from '../utils/api'
-import { formatRupiah } from '../utils/formatCurrency'
+import { formatCurrency } from '../utils/formatCurrency'
 import BentoCard from '../components/ui/BentoCard'
 import Skeleton from '../components/ui/Skeleton'
 
 export default function Transactions() {
   const { user } = useAuth()
+  const { currencyCode } = useCurrency()
   const { success, error: showError } = useToast()
   
   const [transactions, setTransactions] = useState([])
@@ -131,9 +133,9 @@ export default function Transactions() {
                 </div>
                 
                 <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto pl-16 sm:pl-0">
-                  <p className={`font-bold ${tx.type === 'income' ? 'text-emerald-primary' : 'text-text-primary'}`}>
-                    {tx.type === 'income' ? '+' : '-'}{formatRupiah(tx.amount)}
-                  </p>
+                  <div className={`font-semibold ${tx.type === 'income' ? 'text-emerald-primary' : 'text-rose-primary'}`}>
+                    {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount, currencyCode)}
+                  </div>
                   <button
                     onClick={() => handleDelete(tx.id)}
                     className="p-2 rounded-lg hover:bg-rose-primary/10 text-text-muted hover:text-rose-primary transition-colors focus:outline-none"

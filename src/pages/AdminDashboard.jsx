@@ -60,14 +60,14 @@ export default function AdminDashboard() {
         <div className="flex items-center justify-between pb-6 border-b border-glass-border">
           <div>
             <h1 className="text-2xl font-bold tracking-tight mb-1">Admin Dashboard</h1>
-            <p className="text-text-secondary text-sm">Kelola Kode Akses Pengguna Artha</p>
+            <p className="text-text-secondary text-sm">Manage Artha User Access Codes</p>
           </div>
           <button 
             onClick={logout}
             className="flex items-center gap-2 px-4 py-2 rounded-xl border border-glass-border hover:bg-glass-hover text-sm font-medium transition-colors"
           >
             <LogOut className="w-4 h-4" />
-            Keluar
+            Logout
           </button>
         </div>
 
@@ -84,8 +84,8 @@ export default function AdminDashboard() {
               <Users className="w-6 h-6 text-emerald-primary" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold">Total Pengguna: {users.length}</h2>
-              <p className="text-text-secondary text-sm">Buat kode akses baru untuk didistribusikan.</p>
+              <h2 className="text-lg font-semibold">Total Users: {users.length}</h2>
+              <p className="text-text-secondary text-sm">Generate new access codes to distribute.</p>
             </div>
           </div>
           <button
@@ -93,10 +93,10 @@ export default function AdminDashboard() {
             disabled={loading}
             className="flex items-center gap-2 px-6 py-3 bg-text-primary text-bg-primary rounded-xl font-semibold text-sm hover:opacity-90 transition-all disabled:opacity-50"
           >
-            {loading ? 'Memproses...' : (
+            {loading ? 'Processing...' : (
               <>
                 <Plus className="w-4 h-4" />
-                Generate Kode Baru
+                Generate New Code
               </>
             )}
           </button>
@@ -108,10 +108,10 @@ export default function AdminDashboard() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-glass-border bg-bg-tertiary">
-                  <th className="px-6 py-4 text-xs font-semibold text-text-secondary uppercase tracking-wider">Kode Akses</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-text-secondary uppercase tracking-wider">Dibuat Pada</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-text-secondary uppercase tracking-wider">Total Transaksi</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-text-secondary uppercase tracking-wider text-right">Aksi</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-text-secondary uppercase tracking-wider">Access Code</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-text-secondary uppercase tracking-wider">Created At</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-text-secondary uppercase tracking-wider">Total Transactions</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-text-secondary uppercase tracking-wider text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-glass-border">
@@ -126,13 +126,13 @@ export default function AdminDashboard() {
                       {formatDate(u.created_at)}
                     </td>
                     <td className="px-6 py-4 text-sm">
-                      <span className="font-semibold text-text-primary">{u.tx_count}</span> transaksi
+                      <span className="font-semibold text-text-primary">{u.tx_count}</span> transactions
                     </td>
                     <td className="px-6 py-4 text-right">
                       <button
                         onClick={() => handleCopy(u.access_code)}
                         className="inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-glass text-text-secondary transition-colors"
-                        title="Copy Kode"
+                        title="Copy Code"
                       >
                         {copiedCode === u.access_code ? (
                           <Check className="w-4 h-4 text-emerald-primary" />
@@ -146,7 +146,7 @@ export default function AdminDashboard() {
                 {users.length === 0 && (
                   <tr>
                     <td colSpan="4" className="px-6 py-8 text-center text-text-muted text-sm">
-                      Belum ada pengguna. Silakan generate kode pertama Anda.
+                      No users yet. Please generate your first code.
                     </td>
                   </tr>
                 )}

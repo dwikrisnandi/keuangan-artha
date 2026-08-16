@@ -4,7 +4,13 @@
  * Single-file API endpoint for the Personal Finance Dashboard
  */
 
-header('Access-Control-Allow-Origin: http://localhost:5173');
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+$allowed_domains = ['http://localhost:5173', 'https://apps.arthavirddhisampada.online'];
+if (in_array($origin, $allowed_domains)) {
+    header('Access-Control-Allow-Origin: ' . $origin);
+} else {
+    header('Access-Control-Allow-Origin: https://apps.arthavirddhisampada.online');
+}
 header('Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Access-Control-Allow-Credentials: true');
@@ -34,7 +40,7 @@ function getJsonBody(): array
     $body = json_decode($raw, true);
 
     if (!is_array($body)) {
-        jsonResponse(false, null, 'Body request harus berupa JSON yang valid.', 400);
+        jsonResponse(false, null, 'Request body must be valid JSON.', 400);
     }
     return $body;
 }
@@ -49,44 +55,62 @@ try {
 
         case 'login':
             if ($method !== 'POST') {
-                jsonResponse(false, null, 'Method harus POST.', 405);
+                jsonResponse(false, null, 'Method must be POST.', 405);
             }
             $body = getJsonBody();
             $accessCode = trim($body['access_code'] ?? '');
 
             if (empty($accessCode)) {
-                jsonResponse(false, null, 'Kode akses tidak boleh kosong.', 422);
+                jsonResponse(false, null, 'Access code cannot be empty.', 422);
             }
 
-            $stmt = $pdo->prepare('SELECT id, access_code, role, created_at FROM users WHERE access_code = ?');
+            $stmt = $pdo->prepare('SELECT id, access_code, role, currency_code, created_at FROM users WHERE access_code = ?');
             $stmt->execute([$accessCode]);
             $user = $stmt->fetch();
 
             if ($user) {
-                jsonResponse(true, $user, 'Login berhasil.');
+                jsonResponse(true, $user, 'Login successful.');
             } else {
-                jsonResponse(false, null, 'Kode akses tidak valid atau belum terdaftar. Silakan hubungi Admin.', 401);
+                jsonResponse(false, null, 'Invalid access code. Please contact Admin.', 401);
             }
+            break;
+
+        case 'set_currency':
+            if ($method !== 'POST') {
+                jsonResponse(false, null, 'Method must be POST.', 405);
+            }
+            $body = getJsonBody();
+            $userId = filter_var($body['user_id'] ?? 0, FILTER_VALIDATE_INT);
+            $currencyCode = trim($body['currency_code'] ?? '');
+
+            if (!$userId || empty($currencyCode)) {
+                jsonResponse(false, null, 'Incomplete data.', 422);
+            }
+
+            $stmt = $pdo->prepare('UPDATE users SET currency_code = ? WHERE id = ?');
+            $stmt->execute([$currencyCode, $userId]);
+
+            jsonResponse(true, null, 'Currency successfully updated.');
             break;
 
         case 'generate_code':
             if ($method !== 'POST') {
-                jsonResponse(false, null, 'Method harus POST.', 405);
+                jsonResponse(false, null, 'Method must be POST.', 405);
             }
             $body = getJsonBody();
             $adminId = filter_var($body['admin_id'] ?? 0, FILTER_VALIDATE_INT);
             if (!$adminId) {
-                jsonResponse(false, null, 'Akses ditolak.', 401);
+                jsonResponse(false, null, 'Access denied.', 401);
             }
 
             $stmt = $pdo->prepare('SELECT role FROM users WHERE id = ?');
             $stmt->execute([$adminId]);
             $admin = $stmt->fetch();
             if (!$admin || $admin['role'] !== 'admin') {
-                jsonResponse(false, null, 'Akses ditolak. Anda bukan admin.', 403);
+                jsonResponse(false, null, 'Access denied. You are not an admin.', 403);
             }
 
-            $newCode = 'ARTHA-' . strtoupper(substr(md5(uniqid(rand(), true)), 0, 6));
+            $newCode = strtoupper(substr(md5(uniqid(rand(), true)), 0, 7));
 
             $stmt = $pdo->prepare('INSERT INTO users (access_code, role) VALUES (?, ?)');
             $stmt->execute([$newCode, 'user']);
@@ -97,23 +121,23 @@ try {
                 'role' => 'user',
                 'created_at' => date('Y-m-d H:i:s'),
             ];
-            jsonResponse(true, $newUser, 'Kode akses baru berhasil dibuat.', 201);
+            jsonResponse(true, $newUser, 'New access code successfully generated.', 201);
             break;
 
         case 'get_users':
             if ($method !== 'GET') {
-                jsonResponse(false, null, 'Method harus GET.', 405);
+                jsonResponse(false, null, 'Method must be GET.', 405);
             }
             $adminId = filter_input(INPUT_GET, 'admin_id', FILTER_VALIDATE_INT);
             if (!$adminId) {
-                jsonResponse(false, null, 'Akses ditolak.', 401);
+                jsonResponse(false, null, 'Access denied.', 401);
             }
 
             $stmt = $pdo->prepare('SELECT role FROM users WHERE id = ?');
             $stmt->execute([$adminId]);
             $admin = $stmt->fetch();
             if (!$admin || $admin['role'] !== 'admin') {
-                jsonResponse(false, null, 'Akses ditolak. Anda bukan admin.', 403);
+                jsonResponse(false, null, 'Access denied. You are not an admin.', 403);
             }
 
             $stmt = $pdo->prepare('
@@ -127,22 +151,22 @@ try {
             $stmt->execute();
             $users = $stmt->fetchAll();
 
-            jsonResponse(true, $users, 'Daftar pengguna berhasil diambil.');
+            jsonResponse(true, $users, 'User list successfully retrieved.');
             break;
 
         case 'transactions':
             if ($method !== 'GET') {
-                jsonResponse(false, null, 'Method harus GET.', 405);
+                jsonResponse(false, null, 'Method must be GET.', 405);
             }
             $userId = filter_input(INPUT_GET, 'user_id', FILTER_VALIDATE_INT);
-            if (!$userId || $userId <= 0) {
-                jsonResponse(false, null, 'Parameter user_id harus berupa angka positif.', 422);
+            if (!$userId) {
+                jsonResponse(false, null, 'User ID must be a positive integer.', 422);
             }
 
             $stmt = $pdo->prepare('SELECT id FROM users WHERE id = ?');
             $stmt->execute([$userId]);
             if (!$stmt->fetch()) {
-                jsonResponse(false, null, 'User tidak ditemukan.', 404);
+                jsonResponse(false, null, 'User not found.', 404);
             }
 
             $stmt = $pdo->prepare(
@@ -161,12 +185,12 @@ try {
                 return $tx;
             }, $transactions);
 
-            jsonResponse(true, $transactions, 'Data transaksi berhasil diambil.');
+            jsonResponse(true, $transactions, 'Transactions successfully retrieved.');
             break;
 
         case 'add_transaction':
             if ($method !== 'POST') {
-                jsonResponse(false, null, 'Method harus POST.', 405);
+                jsonResponse(false, null, 'Method must be POST.', 405);
             }
             $body = getJsonBody();
             $userId     = filter_var($body['user_id'] ?? 0, FILTER_VALIDATE_INT);
@@ -177,20 +201,21 @@ try {
             $date       = trim($body['date'] ?? '');
 
             $errors = [];
-            if (!$userId || $userId <= 0) $errors[] = 'user_id wajib diisi.';
-            if (!in_array($type, ['income', 'expense', 'debt'], true)) $errors[] = 'type tidak valid.';
-            if ($amount === false || $amount <= 0) $errors[] = 'amount harus positif.';
-            if (empty($category) || strlen($category) > 100) $errors[] = 'category tidak valid.';
-            if (empty($date) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) $errors[] = 'format date salah.';
+            if (!$userId || $userId <= 0) $errors[] = 'user_id is required.';
+            if (!in_array($type, ['income', 'expense', 'debt'], true)) $errors[] = 'Invalid type.';
+            if ($amount === false || $amount <= 0) $errors[] = 'Amount must be > 0.';
+            if (empty($category) || strlen($category) > 100) $errors[] = 'Invalid category.';
+            if (!empty($description) && strlen($description) > 255) $errors[] = 'Description too long.';
+            if (empty($date) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) $errors[] = 'Invalid date format (YYYY-MM-DD).';
 
             if (!empty($errors)) {
-                jsonResponse(false, ['errors' => $errors], 'Validasi gagal.', 422);
+                jsonResponse(false, ['errors' => $errors], 'Validation failed.', 422);
             }
 
             $stmt = $pdo->prepare('SELECT id FROM users WHERE id = ?');
             $stmt->execute([$userId]);
             if (!$stmt->fetch()) {
-                jsonResponse(false, null, 'User tidak ditemukan.', 404);
+                jsonResponse(false, null, 'User not found.', 404);
             }
 
             $stmt = $pdo->prepare(
@@ -209,12 +234,12 @@ try {
                 'date'        => $date,
                 'created_at'  => date('Y-m-d H:i:s'),
             ];
-            jsonResponse(true, $newTransaction, 'Transaksi berhasil ditambahkan.', 201);
+            jsonResponse(true, $newTransaction, 'Transaction successfully added.', 201);
             break;
 
         case 'delete_transaction':
             if ($method !== 'DELETE') {
-                jsonResponse(false, null, 'Method harus DELETE.', 405);
+                jsonResponse(false, null, 'Method must be POST.', 405);
             }
             $id     = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
             $userId = filter_input(INPUT_GET, 'user_id', FILTER_VALIDATE_INT);
@@ -227,13 +252,13 @@ try {
             $stmt->execute([$id, $userId]);
 
             if ($stmt->rowCount() === 0) {
-                jsonResponse(false, null, 'Transaksi tidak ditemukan.', 404);
+                jsonResponse(false, null, 'Invalid transaction ID.', 422);
             }
-            jsonResponse(true, null, 'Transaksi berhasil dihapus.');
+            jsonResponse(true, null, 'Transaction successfully deleted.');
             break;
 
         default:
-            jsonResponse(false, null, 'Action tidak dikenali.', 400);
+            jsonResponse(false, null, 'Invalid action.', 400);
     }
 } catch (PDOException $e) {
     error_log('API Error: ' . $e->getMessage());

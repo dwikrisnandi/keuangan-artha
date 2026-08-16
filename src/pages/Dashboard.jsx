@@ -9,18 +9,21 @@ import {
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { getTransactions, addTransaction, deleteTransaction } from '../utils/api'
-import { formatRupiah, formatRupiahShort } from '../utils/formatCurrency'
+import { formatCurrency, formatCurrencyShort } from '../utils/formatCurrency'
+import { useCurrency } from '../context/CurrencyContext'
 import BentoCard from '../components/ui/BentoCard'
 import Skeleton from '../components/ui/Skeleton'
 import TransactionModal from '../components/ui/TransactionModal'
 import { useNotificationEngine } from '../hooks/useNotificationEngine'
 
-const CustomTooltip = ({ active, payload }) => {
+const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-bg-tertiary/95 backdrop-blur-md border border-glass-border p-3 rounded-xl shadow-glass">
-        <p className="text-text-primary text-xs font-medium mb-1">{payload[0].name || payload[0].payload.name}</p>
-        <p className="text-emerald-primary font-bold">{formatRupiah(payload[0].value)}</p>
+      <div className="bg-bg-card border border-glass-border p-3 rounded-xl shadow-glass">
+        <p className="text-text-secondary text-sm mb-1">{label || payload[0].payload.name}</p>
+        <p className="font-bold" style={{ color: payload[0].payload.color || payload[0].color || 'var(--text-primary)' }}>
+          {formatCurrency(payload[0].value, payload[0].payload.currencyCode)}
+        </p>
       </div>
     )
   }
@@ -29,6 +32,7 @@ const CustomTooltip = ({ active, payload }) => {
 
 export default function Dashboard() {
   const { user } = useAuth()
+  const { currencyCode } = useCurrency()
   const { success, error: showError } = useToast()
   const [transactions, setTransactions] = useState([])
   const [loading, setLoading] = useState(true)
@@ -65,14 +69,14 @@ export default function Dashboard() {
     const totalExpense = thisMonth.filter((tx) => tx.type === 'expense').reduce((sum, tx) => sum + tx.amount, 0)
     const balance = totalIncome - totalExpense
 
-    const kebutuhan = thisMonth.filter((tx) => tx.type === 'expense' && tx.category === 'Needs').reduce((sum, tx) => sum + tx.amount, 0)
-    const keinginan = thisMonth.filter((tx) => tx.type === 'expense' && tx.category === 'Wants').reduce((sum, tx) => sum + tx.amount, 0)
-    const tabungan = thisMonth.filter((tx) => tx.type === 'expense' && tx.category === 'Savings').reduce((sum, tx) => sum + tx.amount, 0)
+    const kebutuhan = thisMonth.filter((tx) => tx.type === 'expense' && (tx.category === 'Needs' || tx.category === 'Kebutuhan')).reduce((sum, tx) => sum + tx.amount, 0)
+    const keinginan = thisMonth.filter((tx) => tx.type === 'expense' && (tx.category === 'Wants' || tx.category === 'Keinginan')).reduce((sum, tx) => sum + tx.amount, 0)
+    const tabungan = thisMonth.filter((tx) => tx.type === 'expense' && (tx.category === 'Savings' || tx.category === 'Tabungan')).reduce((sum, tx) => sum + tx.amount, 0)
 
     const expenseRatioData = [
-      { name: 'Needs', value: kebutuhan, color: '#10B981' },
-      { name: 'Wants', value: keinginan, color: '#F59E0B' },
-      { name: 'Savings', value: tabungan, color: '#3B82F6' },
+      { name: 'Needs', value: kebutuhan, color: '#10B981', currencyCode },
+      { name: 'Wants', value: keinginan, color: '#F59E0B', currencyCode },
+      { name: 'Savings', value: tabungan, color: '#3B82F6', currencyCode },
     ].filter(d => d.value > 0)
 
     const last7DaysData = []
@@ -86,7 +90,7 @@ export default function Dashboard() {
         .filter(tx => tx.type === 'expense' && tx.date === dateStr)
         .reduce((sum, tx) => sum + tx.amount, 0)
         
-      last7DaysData.push({ name: shortDay, fullDate: dateStr, value: dayExpense })
+      last7DaysData.push({ name: shortDay, fullDate: dateStr, value: dayExpense, currencyCode })
     }
     const has7DaysData = last7DaysData.some(d => d.value > 0)
 
@@ -100,9 +104,8 @@ export default function Dashboard() {
       last7DaysData, 
       has7DaysData 
     }
-  }, [transactions])
+  }, [transactions, currencyCode])
 
-  // Fire Smart Notification Engine!
   useNotificationEngine(metrics)
 
   const handleAddTransaction = async (txData) => {
@@ -127,7 +130,6 @@ export default function Dashboard() {
 
   const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
 
-  // Skeleton Loaders
   if (loading && transactions.length === 0) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-[minmax(180px,auto)]">
@@ -147,19 +149,16 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {/* Bento Grid Layout */}
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 auto-rows-[minmax(160px,auto)]">
-        
-        {/* Main Balance Card (Hero) */}
         <BentoCard colSpan={2} className="bg-gradient-to-br from-bg-secondary to-bg-tertiary !border-glass-border-hover relative overflow-hidden group">
           <div className="absolute top-4 right-4 p-3 rounded-full bg-bg-card border border-glass-border shadow-sm">
             <Wallet className="w-6 h-6 text-emerald-primary" />
           </div>
           <div className="relative z-10 flex flex-col h-full justify-between pt-2">
-            <div className="w-full pr-12">
-              <p className="text-text-secondary text-sm font-medium mb-1">Current Balance</p>
-              <h3 className="text-text-primary text-3xl sm:text-4xl font-bold tracking-tight truncate w-full" title={formatRupiah(metrics.balance)}>
-                {formatRupiah(metrics.balance)}
+            <div className="mb-8">
+              <p className="text-text-secondary font-medium mb-1 uppercase tracking-wider text-sm flex items-center gap-2">Total Balance</p>
+              <h3 className="text-text-primary text-3xl sm:text-4xl font-bold tracking-tight truncate w-full" title={formatCurrency(metrics.balance, currencyCode)}>
+                {formatCurrency(metrics.balance, currencyCode)}
               </h3>
             </div>
             <div className="flex items-center gap-4 mt-6">
@@ -167,25 +166,24 @@ export default function Dashboard() {
                 <div className="w-8 h-8 rounded-full bg-emerald-bg flex items-center justify-center">
                   <TrendingUp className="w-4 h-4 text-emerald-primary" />
                 </div>
-                <div>
-                  <p className="text-text-muted text-[11px] uppercase tracking-wider font-semibold">Income</p>
-                  <p className="text-text-primary text-sm font-medium">{formatRupiahShort(metrics.totalIncome)}</p>
+                <div className="flex-1">
+                  <p className="text-text-secondary text-xs uppercase tracking-wider mb-1">Income</p>
+                  <p className="text-text-primary text-sm font-medium">{formatCurrencyShort(metrics.totalIncome, currencyCode)}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-rose-bg flex items-center justify-center">
                   <TrendingDown className="w-4 h-4 text-rose-primary" />
                 </div>
-                <div>
-                  <p className="text-text-muted text-[11px] uppercase tracking-wider font-semibold">Expense</p>
-                  <p className="text-text-primary text-sm font-medium">{formatRupiahShort(metrics.totalExpense)}</p>
+                <div className="flex-1">
+                  <p className="text-text-secondary text-xs uppercase tracking-wider mb-1">Expenses</p>
+                  <p className="text-text-primary text-sm font-medium">{formatCurrencyShort(metrics.totalExpense, currencyCode)}</p>
                 </div>
               </div>
             </div>
           </div>
         </BentoCard>
 
-        {/* Expense Ratio Chart */}
         <BentoCard colSpan={1} md:colSpan={1} lg:colSpan={1} title="Ratio">
           <div className="flex-1 w-full h-full min-h-[140px] flex items-center justify-center relative">
             {metrics.expenseRatioData.length > 0 ? (
@@ -193,7 +191,7 @@ export default function Dashboard() {
                 <PieChart>
                   <Pie
                     data={metrics.expenseRatioData}
-                    cx="50%" cy="50%" innerRadius="60%" outerRadius="90%" paddingAngle={4}
+                    cx="50%" cy="50%" innerRadius={35} outerRadius={50} paddingAngle={4}
                     dataKey="value" stroke="none"
                   >
                     {metrics.expenseRatioData.map((entry, index) => (
@@ -212,7 +210,6 @@ export default function Dashboard() {
           </div>
         </BentoCard>
 
-        {/* Recent Transactions List (Spans 2 rows) */}
         <BentoCard colSpan={1} md:colSpan={3} lg:colSpan={1} rowSpan={2} title="Recent" className="overflow-y-auto max-h-[450px] no-scrollbar">
           <div className="flex flex-col gap-3">
             {transactions.slice(0, 7).map((tx) => (
@@ -229,9 +226,9 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <p className={`text-sm font-semibold whitespace-nowrap ${tx.type === 'income' ? 'text-emerald-primary' : 'text-text-primary'}`}>
-                    {tx.type === 'income' ? '+' : '-'}{formatRupiahShort(tx.amount)}
-                  </p>
+                  <div className={`font-semibold whitespace-nowrap ${tx.type === 'income' ? 'text-emerald-primary' : 'text-rose-primary'}`}>
+                    {tx.type === 'income' ? '+' : '-'}{formatCurrencyShort(tx.amount, currencyCode)}
+                  </div>
                   <button
                     onClick={() => handleDelete(tx.id)}
                     className="opacity-0 group-hover:opacity-100 p-1.5 rounded-md hover:bg-rose-primary/20 text-text-muted hover:text-rose-primary transition-all"
@@ -247,14 +244,13 @@ export default function Dashboard() {
           </div>
         </BentoCard>
 
-        {/* 7 Days Trend Chart */}
         <BentoCard colSpan={1} md:colSpan={2} lg:colSpan={2} title="7 Days Trend">
-          <div className="flex-1 w-full min-h-[160px] relative">
+          <div className="flex-1 w-full h-[180px] min-h-[180px] relative">
             {metrics.has7DaysData ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={metrics.last7DaysData} margin={{ top: 10, right: 0, left: -25, bottom: 0 }}>
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#666', fontSize: 11 }} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#666', fontSize: 11 }} tickFormatter={(val) => formatRupiahShort(val)} />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#666', fontSize: 11 }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#666', fontSize: 11 }} tickFormatter={(val) => formatCurrencyShort(val, currencyCode)} />
                   <Tooltip content={<CustomTooltip />} cursor={{fill: 'rgba(255,255,255,0.03)'}} />
                   <Bar dataKey="value" fill="#333" radius={[4, 4, 0, 0]} activeBar={{ fill: '#F43F5E' }} />
                 </BarChart>

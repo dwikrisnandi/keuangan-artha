@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { X, Loader2, TrendingUp, TrendingDown } from 'lucide-react'
+import { createPortal } from 'react-dom'
+import { useCurrency } from '../../context/CurrencyContext'
 
 const EXPENSE_CATEGORIES = [
-  { value: 'Kebutuhan', label: 'Kebutuhan (50%)' },
-  { value: 'Keinginan', label: 'Keinginan (30%)' },
-  { value: 'Tabungan', label: 'Tabungan (20%)' },
+  { value: 'Needs', label: 'Needs (50%)' },
+  { value: 'Wants', label: 'Wants (30%)' },
+  { value: 'Savings', label: 'Savings (20%)' },
 ]
 
 /**
@@ -14,10 +16,11 @@ const EXPENSE_CATEGORIES = [
  * @param {function} onSubmit - async (txData) => void
  */
 export default function TransactionModal({ isOpen, onClose, onSubmit }) {
+  const { currencyCode } = useCurrency()
   const [type, setType] = useState('expense')
   const [amount, setAmount] = useState('')
   const [date, setDate] = useState(new Date().toISOString().split('T')[0])
-  const [category, setCategory] = useState('Kebutuhan')
+  const [category, setCategory] = useState('Needs')
   const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -44,11 +47,11 @@ export default function TransactionModal({ isOpen, onClose, onSubmit }) {
 
     const numAmount = parseFloat(amount)
     if (!numAmount || numAmount <= 0) {
-      setError('Nominal harus lebih dari 0.')
+      setError('Amount must be greater than 0.')
       return
     }
     if (!date) {
-      setError('Tanggal wajib diisi.')
+      setError('Category is required for expenses.')
       return
     }
 
@@ -57,14 +60,14 @@ export default function TransactionModal({ isOpen, onClose, onSubmit }) {
       await onSubmit({
         type,
         amount: numAmount,
-        category: type === 'income' ? 'Pemasukan' : category,
+        category: type === 'income' ? 'Income' : category,
         description: description.trim() || null,
         date,
       })
       resetForm()
       onClose()
     } catch (err) {
-      setError(err.message || 'Gagal menyimpan transaksi.')
+      setError(err.message || 'Failed to save transaction.')
     } finally {
       setLoading(false)
     }
@@ -73,8 +76,8 @@ export default function TransactionModal({ isOpen, onClose, onSubmit }) {
   const inputClass =
     'w-full bg-bg-primary/60 border border-glass-border rounded-xl px-4 py-3 text-text-primary text-sm focus:outline-none focus:border-emerald-primary/50 focus:ring-1 focus:ring-emerald-primary/20 transition-all duration-[var(--transition-base)]'
 
-  return (
-    <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center">
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
@@ -86,11 +89,11 @@ export default function TransactionModal({ isOpen, onClose, onSubmit }) {
         <div className="glass-card-static rounded-t-2xl sm:rounded-2xl overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-glass-border">
-            <h3 className="text-text-primary text-base font-semibold">Tambah Transaksi</h3>
+            <h3 className="text-text-primary text-base font-semibold">Add Transaction</h3>
             <button
               onClick={handleClose}
               className="w-8 h-8 rounded-lg bg-glass flex items-center justify-center hover:bg-glass-hover transition-colors cursor-pointer"
-              aria-label="Tutup"
+              aria-label="Close"
             >
               <X className="w-4 h-4 text-text-secondary" />
             </button>
@@ -101,12 +104,15 @@ export default function TransactionModal({ isOpen, onClose, onSubmit }) {
             {/* Type toggle */}
             <div>
               <label className="block text-text-secondary text-xs font-medium mb-2 uppercase tracking-wider">
-                Tipe Transaksi
+                Transaction Type
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
-                  onClick={() => setType('income')}
+                  onClick={() => {
+                    setType('income')
+                    setCategory('Income')
+                  }}
                   className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${
                     type === 'income'
                       ? 'bg-emerald-bg text-emerald-primary border border-emerald-primary/30'
@@ -114,11 +120,14 @@ export default function TransactionModal({ isOpen, onClose, onSubmit }) {
                   }`}
                 >
                   <TrendingUp className="w-4 h-4" />
-                  Pemasukan
+                  Income
                 </button>
                 <button
                   type="button"
-                  onClick={() => setType('expense')}
+                  onClick={() => {
+                    setType('expense')
+                    setCategory('Needs')
+                  }}
                   className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${
                     type === 'expense'
                       ? 'bg-rose-bg text-rose-primary border border-rose-primary/30'
@@ -126,7 +135,7 @@ export default function TransactionModal({ isOpen, onClose, onSubmit }) {
                   }`}
                 >
                   <TrendingDown className="w-4 h-4" />
-                  Pengeluaran
+                  Expense
                 </button>
               </div>
             </div>
@@ -134,13 +143,13 @@ export default function TransactionModal({ isOpen, onClose, onSubmit }) {
             {/* Amount */}
             <div>
               <label htmlFor="tx-amount" className="block text-text-secondary text-xs font-medium mb-2 uppercase tracking-wider">
-                Nominal (Rp)
+                Amount ({currencyCode || 'IDR'})
               </label>
               <input
                 id="tx-amount"
                 type="number"
                 min="0"
-                step="1000"
+                step={(currencyCode || 'IDR').toUpperCase() === 'IDR' ? '1000' : '0.01'}
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0"
@@ -152,7 +161,7 @@ export default function TransactionModal({ isOpen, onClose, onSubmit }) {
             {/* Date */}
             <div>
               <label htmlFor="tx-date" className="block text-text-secondary text-xs font-medium mb-2 uppercase tracking-wider">
-                Tanggal
+                Date
               </label>
               <input
                 id="tx-date"
@@ -168,7 +177,7 @@ export default function TransactionModal({ isOpen, onClose, onSubmit }) {
             {type === 'expense' && (
               <div className="animate-fade-in">
                 <label htmlFor="tx-category" className="block text-text-secondary text-xs font-medium mb-2 uppercase tracking-wider">
-                  Kategori Pengeluaran
+                  Expense Category
                 </label>
                 <select
                   id="tx-category"
@@ -188,14 +197,14 @@ export default function TransactionModal({ isOpen, onClose, onSubmit }) {
             {/* Description */}
             <div>
               <label htmlFor="tx-desc" className="block text-text-secondary text-xs font-medium mb-2 uppercase tracking-wider">
-                Keterangan <span className="text-text-muted">(opsional)</span>
+                Description <span className="text-text-muted">(optional)</span>
               </label>
               <input
                 id="tx-desc"
                 type="text"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Contoh: Gaji bulanan"
+                placeholder="Example: Monthly salary"
                 maxLength={255}
                 className={inputClass}
               />
@@ -216,7 +225,7 @@ export default function TransactionModal({ isOpen, onClose, onSubmit }) {
                 onClick={handleClose}
                 className="flex-1 py-3 rounded-xl text-sm font-medium text-text-secondary bg-glass border border-glass-border hover:bg-glass-hover transition-all cursor-pointer"
               >
-                Batal
+                Cancel
               </button>
               <button
                 type="submit"
@@ -230,13 +239,14 @@ export default function TransactionModal({ isOpen, onClose, onSubmit }) {
                 {loading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  'Simpan'
+                  'Save'
                 )}
               </button>
             </div>
           </form>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

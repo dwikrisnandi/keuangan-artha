@@ -9,4 +9,7 @@ export default defineConfig({
     tailwindcss(),
   ],
   base: '/keuangan/',
+  build: {
+    chunkSizeWarningLimit: 1000,
+  },
 })
